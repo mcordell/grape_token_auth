@@ -7,6 +7,10 @@ require 'active_record'
 require 'factory_girl'
 require 'database_cleaner'
 require_relative './database'
+%w(database test_apps factories).each do |word|
+  root_dir = File.expand_path("../#{word}", __FILE__)
+  Dir.glob(root_dir + '/**/*.rb').each { |path| require path }
+end
 
 Database.establish_connection
 
@@ -21,4 +25,8 @@ RSpec.configure do |config|
       example.run
     end
   end
+end
+
+Airborne.configure do |config|
+  config.rack_app = TestApp
 end
