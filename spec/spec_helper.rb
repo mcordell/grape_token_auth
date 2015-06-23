@@ -7,6 +7,7 @@ require 'active_record'
 require 'factory_girl'
 require 'database_cleaner'
 require_relative './database'
+require 'timecop'
 %w(database test_apps factories).each do |word|
   root_dir = File.expand_path("../#{word}", __FILE__)
   Dir.glob(root_dir + '/**/*.rb').each { |path| require path }
