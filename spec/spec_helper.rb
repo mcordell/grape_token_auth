@@ -31,3 +31,10 @@ end
 Airborne.configure do |config|
   config.rack_app = TestApp
 end
+
+def age_token(user, client_id)
+  age = Time.now -
+        (GrapeTokenAuth.batch_request_buffer_throttle + 10.seconds)
+  user.tokens[client_id]['updated_at'] = age
+  user.save!
+end
