@@ -32,4 +32,24 @@ describe GrapeTokenAuth do
       end
     end
   end
+
+  describe '#setup!' do
+    context 'when passed a block' do
+      before do
+        GrapeTokenAuth.setup! do |config|
+          config.token_lifespan = 4546
+        end
+      end
+
+      it 'sets configuration values for the module' do
+        expect(GrapeTokenAuth.configuration.token_lifespan).to eq 4546
+      end
+    end
+
+    it 'adds the auth strategy to grape' do
+      GrapeTokenAuth.setup!
+      strategies = Grape::Middleware::Auth::Strategies.auth_strategies.keys
+      expect(strategies).to include(:grape_devise_token_auth)
+    end
+  end
 end

@@ -1,3 +1,4 @@
+GrapeTokenAuth.setup!
 class TestApp < Grape::API
   format :json
 
