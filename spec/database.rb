@@ -7,6 +7,7 @@ class Database
   class << self
     def setup
       setup_config
+      configuration = ActiveRecord::Base.configurations[:test]
       begin
         ActiveRecord::Tasks::PostgreSQLDatabaseTasks.new(configuration).create
       rescue DatabaseAlreadyExists
@@ -16,6 +17,7 @@ class Database
 
     def reset
       setup_config
+      establish_connection
       connection = ActiveRecord::Base.connection
       connection.drop_table(:users) if connection.table_exists?(:users)
       connection.create_table 'users', force: :cascade do |t|
