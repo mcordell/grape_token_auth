@@ -1,7 +1,7 @@
 class TestApp < Grape::API
   format :json
 
-#  GrapeTokenAuth.authenticate!
+  include GrapeTokenAuth::TokenAuthentication
 
   get '/' do
     authenticate_user!

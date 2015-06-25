@@ -46,7 +46,7 @@ RSpec.describe 'Getting a protected route'  do
       end
 
       it 'should allow a new request to be made using new token' do
-        assert_equal 200, response.status
+        expect(response.status).to eq 200
       end
     end
   end
