@@ -2,7 +2,7 @@ module GrapeTokenAuth
   class Middleware
     attr_reader :app
 
-    def initialize(app)
+    def initialize(app, options)
       @app = app
     end
 
