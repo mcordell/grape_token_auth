@@ -11,8 +11,10 @@ module GrapeTokenAuth
         let(:token_lifespan) { 3600 }
         before do
           Timecop.freeze
-          expect(GrapeTokenAuth).to receive(:token_lifespan).at_least(:once).and_return(token_lifespan)
-          expect(BCrypt::Password).to receive(:create).at_least(:once).and_return(token)
+          expect(GrapeTokenAuth).to receive(:token_lifespan).at_least(:once)
+            .and_return(token_lifespan)
+          expect(BCrypt::Password).to receive(:create).at_least(:once)
+            .and_return(token)
           @returned_hash =  subject.create_new_auth_token(client_id)
         end
 
@@ -33,7 +35,8 @@ module GrapeTokenAuth
         end
 
         it 'returned expiry is the time currently plus the token lifespan' do
-          expect(@returned_hash['expiry']).to eq (Time.now + token_lifespan).to_i
+          expiry_time = (Time.now + token_lifespan).to_i
+          expect(@returned_hash['expiry']).to eq expiry_time
         end
 
         it 'persists the token info under the client id in the users tokens' do
