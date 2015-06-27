@@ -19,5 +19,36 @@ module GrapeTokenAuth
         expect(subject.change_headers_on_each_request).to eq true
       end
     end
+
+    describe '.mappings' do
+      it 'returns a hash' do
+        expect(subject.mappings).to be_a Hash
+      end
+    end
+
+    describe '.scope_to_class' do
+      context 'when scopes are not setup' do
+        it 'throws an error' do
+          expect { subject.scope_to_class(:user) }
+            .to raise_error MappingsUndefinedError
+        end
+      end
+
+      context 'when the passed scope has been setup' do
+        before { subject.mappings = { user: User } }
+
+        it 'returns the mapped class' do
+          expect(subject.scope_to_class(:user)).to eq User
+        end
+      end
+
+      context 'when the passed scope has not been setup' do
+        before { subject.mappings = { user: User } }
+
+        it 'returns nil' do
+          expect(subject.scope_to_class(:admin)).to be_nil
+        end
+      end
+    end
   end
 end
