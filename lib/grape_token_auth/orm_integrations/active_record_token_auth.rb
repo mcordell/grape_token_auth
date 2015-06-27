@@ -37,6 +37,24 @@ module GrapeTokenAuth
           'uid' => uid
         }
       end
+
+      def valid_token?(token, client_id)
+        return false unless tokens && tokens[client_id]
+
+        return true if token_is_current?(token, client_id)
+
+        false
+      end
+
+      def token_is_current?(token, client_id)
+        client_id_info = tokens[client_id]
+        expiry     = client_id_info['expiry'] || client_id_info[:expiry]
+        token_hash = client_id_info['token'] || client_id_info[:token]
+        return false unless expiry && token
+        return false unless DateTime.strptime(expiry.to_s, '%s') > Time.now
+        return false unless BCrypt::Password.new(token_hash) == token
+        true
+      end
     end
   end
 end

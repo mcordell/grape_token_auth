@@ -79,6 +79,42 @@ module GrapeTokenAuth
           end
         end
       end
+
+      describe '.valid_token?' do
+        let(:credentials_hash)  { subject.create_new_auth_token }
+        let(:valid_token)       { credentials_hash['access-token'] }
+        let(:valid_client_id)   { credentials_hash['client'] }
+        let(:invalid_token)     { 'invalid' }
+        let(:invalid_client_id) { 'invalid' }
+
+        context 'when passed a valid token and client id pair' do
+          it 'returns true' do
+            expect(subject.valid_token?(valid_token, valid_client_id))
+              .to eq true
+          end
+        end
+
+        context 'when passed a valid token with an invalid client id' do
+          it 'returns false' do
+            expect(subject.valid_token?(valid_token, invalid_client_id))
+              .to eq false
+          end
+        end
+
+        context 'when passed a invalid token with a valid client id' do
+          it 'returns false' do
+            expect(subject.valid_token?(invalid_token, valid_client_id))
+              .to eq false
+          end
+        end
+
+        context 'when passed a invalid token with an invalid client id' do
+          it 'returns false' do
+            expect(subject.valid_token?(invalid_token, invalid_client_id))
+              .to eq false
+          end
+        end
+      end
     end
   end
 end
