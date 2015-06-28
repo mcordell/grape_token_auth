@@ -29,11 +29,11 @@ RSpec.describe 'Getting a protected route'  do
     end
 
     it 'should preserve the client id from the first request' do
-      expect(client_id).to eq @resp_client_id
+      expect(@resp_client_id).to eq client_id
     end
 
     it "should return the user's uid in the auth header" do
-      expect(resource.uid).to eq @resp_uid
+      expect(@resp_uid).to eq resource.uid
     end
 
     describe 'subsequent requests' do

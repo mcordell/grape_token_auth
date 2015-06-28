@@ -3,3 +3,6 @@ class MappingsUndefinedError < StandardError
     'GrapeTokenAuth mapping are undefined'
   end
 end
+
+class Unauthorized < StandardError
+end
