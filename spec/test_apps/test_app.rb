@@ -1,7 +1,7 @@
 require 'warden'
 
 GrapeTokenAuth.setup! do |config|
-  config.mappings = { user: User }
+  config.mappings = { user: User, man: Man }
 end
 
 class TestApp < Grape::API
@@ -30,6 +30,14 @@ class TestApp < Grape::API
     {
       current_user: current_user,
       authenticated?: authenticated?
+    }
+  end
+
+  get '/helper_man_test' do
+    authenticate_man!
+    {
+      current_man_uid: current_man.uid,
+      authenticated?: authenticated?(:man)
     }
   end
 end

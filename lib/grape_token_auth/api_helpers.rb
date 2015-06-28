@@ -8,11 +8,11 @@ module GrapeTokenAuth
 
         define_method("authenticate_#{scope}!") do
           token_authorizer = TokenAuthorizer.new(authorizer_data)
-          user = token_authorizer.authenticate_from_token(:user)
-          fail Unauthorized unless user
+          resource = token_authorizer.authenticate_from_token(scope)
+          fail Unauthorized unless resource
           env['rack.session'] ||= {}
-          authorizer_data.store_resource(user, :user)
-          user
+          authorizer_data.store_resource(resource, scope)
+          resource
         end
       end
     end
