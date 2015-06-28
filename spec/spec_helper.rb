@@ -38,3 +38,13 @@ def age_token(user, client_id)
   user.tokens[client_id]['updated_at'] = age
   user.save!
 end
+
+def auth_header_format
+  {
+    'access-token' => a_kind_of(String),
+    'expiry' => a_kind_of(Integer),
+    'client' => client_id,
+    'token-type' => 'Bearer',
+    'uid' => a_kind_of(String)
+  }
+end

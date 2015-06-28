@@ -26,13 +26,7 @@ module GrapeTokenAuth
 
         describe 'the returned hash' do
           it 'returns a hash that matches the authentication header format' do
-            expect(@returned_hash).to match(
-              'access-token' => a_kind_of(String),
-              'expiry' => a_kind_of(Integer),
-              'client' => client_id,
-              'token-type' => 'Bearer',
-              'uid' => a_kind_of(String)
-            )
+            expect(@returned_hash).to match(auth_header_format)
           end
         end
 
