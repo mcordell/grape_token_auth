@@ -14,7 +14,8 @@ module GrapeTokenAuth
     end
 
     def_delegators :configuration, :token_lifespan,
-                   :batch_request_buffer_throttle
+                   :batch_request_buffer_throttle,
+                   :change_headers_on_each_request
 
     def setup!(&block)
       add_auth_strategy

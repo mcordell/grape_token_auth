@@ -64,4 +64,69 @@ RSpec.describe 'Getting a protected route'  do
       expect(response.status).to eq 401
     end
   end
+
+  describe 'batch requests' do
+    describe 'success' do
+      before do
+        age_token(resource, client_id)
+
+        get protected_route, auth_headers
+
+        @first_access_token = response.headers['access-token']
+
+        get protected_route, auth_headers
+
+        @second_access_token = response.headers['access-token']
+      end
+
+      it 'should allow both requests through' do
+        expect(response.status).to eq 200
+      end
+
+      it 'should return access token for first (non-batch) request' do
+        expect(@first_access_token).not_to be_nil
+      end
+
+      it 'should not return auth headers for second (batched) requests' do
+        expect(@second_access_token).to be_nil
+      end
+    end
+
+    describe 'time out' do
+      before do
+        resource.reload
+        age_token(resource, client_id)
+
+        get protected_route, auth_headers
+
+        @first_access_token = response.headers['access-token']
+        @first_response_status = response.status
+
+        resource.reload
+        age_token(resource, client_id)
+
+        # use expired auth header
+        get protected_route, auth_headers
+
+        @second_access_token = response.headers['access-token']
+        @second_response_status = response.status
+      end
+
+      it 'should allow the first request through' do
+        expect(@first_response_status).to eq 200
+      end
+
+      it 'should not allow the second request through' do
+        expect(@second_response_status).to eq 401
+      end
+
+      it 'should return auth headers from the first request' do
+        expect(@first_access_token).not_to be_nil
+      end
+
+      it 'should not return auth headers from the second request' do
+        expect(@second_access_token).to be_nil
+      end
+    end
+  end
 end

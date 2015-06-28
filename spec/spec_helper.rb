@@ -39,7 +39,7 @@ def age_token(user, client_id)
   user.save!
 end
 
-def auth_header_format
+def auth_header_format(client_id)
   {
     'access-token' => a_kind_of(String),
     'expiry' => a_kind_of(Integer),

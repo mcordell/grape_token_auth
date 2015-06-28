@@ -3,7 +3,7 @@ require 'spec_helper'
 module GrapeTokenAuth
   module ActiveRecord
     RSpec.describe TokenAuth do
-      subject { User.new }
+      subject { User.new(uid: 'hello') }
 
       it { is_expected.to respond_to :while_record_locked }
 
@@ -26,7 +26,7 @@ module GrapeTokenAuth
 
         describe 'the returned hash' do
           it 'returns a hash that matches the authentication header format' do
-            expect(@returned_hash).to match(auth_header_format)
+            expect(@returned_hash).to match(auth_header_format(client_id))
           end
         end
 
@@ -108,6 +108,37 @@ module GrapeTokenAuth
           it 'returns false' do
             expect(subject.valid_token?(invalid_token, invalid_client_id))
               .to eq false
+          end
+        end
+
+        context 'when within the batch buffer window' do
+
+        end
+      end
+
+      describe '.extend_batch_buffer' do
+        before do
+          Timecop.freeze
+          credentials_hash = subject.create_new_auth_token
+          @client_id = credentials_hash['client']
+          token = credentials_hash['access-token']
+          subject.reload
+          @first_updated_at = subject.tokens[@client_id]['updated_at']
+          Timecop.freeze(Time.now + 1.hour)
+          @returned = subject.extend_batch_buffer(token, @client_id)
+        end
+
+        after { Timecop.return }
+
+        context 'when provided an existing client id and token' do
+          it 'returns auth headers' do
+            expect(@returned).to match auth_header_format(@client_id)
+          end
+
+          it 'updates the updated_at time to now' do
+            subject.reload
+            expect(DateTime.parse(subject.tokens[@client_id]['updated_at']))
+              .to eq(DateTime.parse(@first_updated_at) + 1.hour)
           end
         end
       end
