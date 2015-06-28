@@ -55,6 +55,10 @@ module GrapeTokenAuth
         return false unless BCrypt::Password.new(token_hash) == token
         true
       end
+
+      def while_record_locked(&block)
+        with_lock(&block)
+      end
     end
   end
 end

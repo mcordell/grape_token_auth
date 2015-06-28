@@ -5,6 +5,8 @@ module GrapeTokenAuth
     RSpec.describe TokenAuth do
       subject { User.new }
 
+      it { is_expected.to respond_to :while_record_locked }
+
       describe '.create_new_auth_token' do
         let(:token) { 'blahblah' }
         let(:client_id) { 'someclientid' }
