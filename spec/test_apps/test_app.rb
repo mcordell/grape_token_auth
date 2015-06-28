@@ -1,4 +1,5 @@
 require 'warden'
+
 GrapeTokenAuth.setup! do |config|
   config.mappings = { user: User }
 end

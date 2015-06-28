@@ -2,8 +2,8 @@ module GrapeTokenAuth
   class AuthenticationHeader
     extend Forwardable
 
-    def initialize(data, scope, start_time)
-      @resource = data.fetch_stored_resource(scope)
+    def initialize(data, start_time)
+      @resource = data.first_authenticated_resource
       @request_start = start_time
       @data = data
     end

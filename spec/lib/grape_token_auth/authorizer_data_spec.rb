@@ -105,5 +105,42 @@ module GrapeTokenAuth
         end
       end
     end
+
+    describe '.first_authenticated_resource' do
+      context 'when there are multiple mappings' do
+        let(:data) { AuthorizerData.new(nil, nil, nil, nil, warden) }
+        let(:resource) { instance_double('User') }
+        let(:session_serializer) { double('serializer') }
+        before do
+          GrapeTokenAuth.configuration.mappings = { user: User, man: nil }
+          expect(warden).to receive(:session_serializer)
+            .and_return(session_serializer).at_least(:once)
+          allow(session_serializer).to receive(:fetch)
+            .with(:man).and_return(nil)
+        end
+
+        context 'and there is an authenticated user' do
+          before do
+            expect(session_serializer).to receive(:fetch)
+              .with(:user).and_return(resource)
+          end
+
+          it 'returns the signed in user' do
+            expect(data.first_authenticated_resource).to eq resource
+          end
+        end
+
+        context 'and there is no signed in user' do
+          before do
+            expect(session_serializer).to receive(:fetch)
+              .with(:user).and_return(nil)
+          end
+
+          it 'returns nil' do
+            expect(data.first_authenticated_resource).to eq nil
+          end
+        end
+      end
+    end
   end
 end

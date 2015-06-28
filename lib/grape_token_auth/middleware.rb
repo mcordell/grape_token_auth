@@ -2,7 +2,6 @@ module GrapeTokenAuth
   class Middleware
     def initialize(app, _options)
       @app = app
-      @scope = :user
     end
 
     def call(env)
@@ -32,7 +31,7 @@ module GrapeTokenAuth
     end
 
     def responses_with_auth_headers(status, headers, response)
-      auth_headers = AuthenticationHeader.new(authorizer_data, scope, request_start)
+      auth_headers = AuthenticationHeader.new(authorizer_data, request_start)
       [
         status,
         headers.merge(auth_headers.headers),

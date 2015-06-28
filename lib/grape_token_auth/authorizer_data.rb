@@ -32,19 +32,13 @@ module GrapeTokenAuth
     def store_resource(resource, scope)
       warden.session_serializer.store(resource, scope)
     end
-#
-#    def exisiting_warden_user(warden_scope)
-#      warden_user =  warden.user(warden_scope)
-#      return unless warden_user && warden_user.tokens[client_id].nil?
-#      warden_user.create_new_auth_token
-#      warden_user
-#    end
-#
-#
-#    # extracted and simplified from Devise
-#    def set_user_in_warden(scope, resource)
-#      scope = Configuration.find_scope!(scope)
-#      warden.session_serializer.store(resource, scope)
-#    end
+
+    def first_authenticated_resource
+      GrapeTokenAuth.configuration.mappings.each do |scope, _class|
+        resource = fetch_stored_resource(scope)
+        return resource if resource
+      end
+      nil
+    end
   end
 end
