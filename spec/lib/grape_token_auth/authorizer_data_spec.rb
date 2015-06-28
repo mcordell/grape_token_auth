@@ -2,6 +2,8 @@ require 'spec_helper'
 
 module GrapeTokenAuth
   RSpec.describe AuthorizerData do
+    let(:warden) { double('warden') }
+
     describe '#from_env' do
       context 'when passed a request environment hash' do
         let(:uid)          { 'uidkey' }
@@ -68,6 +70,39 @@ module GrapeTokenAuth
 
       it 'defaults to "default"' do
         expect(data.client_id).to eq 'default'
+      end
+    end
+
+    describe '.store_resource' do
+      let(:data) { AuthorizerData.new(nil, nil, nil, nil, warden) }
+      let(:scope) { :user }
+      let(:resource) { instance_double('User') }
+      context 'with a resource and a scope' do
+        before do
+          expect(warden).to receive_message_chain(:session_serializer, :store)
+            .with(resource, scope)
+        end
+
+        it 'stores the resource with warden' do
+          data.store_resource(resource, scope)
+        end
+      end
+    end
+
+    describe '.fetch_stored_session' do
+      let(:data) { AuthorizerData.new(nil, nil, nil, nil, warden) }
+      let(:scope) { :user }
+      let(:resource) { instance_double('User') }
+
+      context 'with a scope' do
+        before do
+          expect(warden).to receive_message_chain(:session_serializer, :fetch)
+            .with(scope).and_return(resource)
+        end
+
+        it 'returns the resource from warden for that scope' do
+          data.fetch_stored_resource(scope)
+        end
       end
     end
   end
