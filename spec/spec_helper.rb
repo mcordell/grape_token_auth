@@ -8,6 +8,8 @@ require 'factory_girl'
 require 'database_cleaner'
 require_relative './database'
 require 'timecop'
+require 'warden'
+
 %w(database test_apps factories).each do |word|
   root_dir = File.expand_path("../#{word}", __FILE__)
   Dir.glob(root_dir + '/**/*.rb').each { |path| require path }
@@ -28,8 +30,17 @@ RSpec.configure do |config|
   end
 end
 
+app = Rack::Builder.new do
+  use Warden::Manager do |manager|
+    manager.failure_app = GrapeTokenAuth::UnauthorizedMiddleware
+    manager.default_scope = :user
+  end
+
+  run TestApp
+end
+
 Airborne.configure do |config|
-  config.rack_app = TestApp
+  config.rack_app = app
 end
 
 def age_token(user, client_id)

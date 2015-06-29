@@ -1,15 +1,9 @@
-require 'warden'
-
 GrapeTokenAuth.setup! do |config|
   config.mappings = { user: User, man: Man }
 end
 
 class TestApp < Grape::API
   format :json
-
-  use Warden::Manager do |manager|
-    manager.failure_app = GrapeTokenAuth::UnauthorizedMiddleware
-  end
 
   include GrapeTokenAuth::TokenAuthentication
 

@@ -1,6 +1,6 @@
 require 'spec_helper'
-
 RSpec.describe 'Getting a protected route'  do
+  include Warden::Test::Helpers
   let(:protected_route) { '/' }
   let(:resource_class)  { User }
   let(:resource)        { FactoryGirl.create(:user) }
@@ -127,6 +127,44 @@ RSpec.describe 'Getting a protected route'  do
       it 'should not return auth headers from the second request' do
         expect(@second_access_token).to be_nil
       end
+    end
+  end
+
+  describe 'Existing Warden authentication' do
+    let(:signed_in_user) { FactoryGirl.create(:user) }
+
+    before do
+      Warden.on_next_request do |proxy|
+        proxy.set_user(signed_in_user, scope: :user)
+      end
+
+      # no auth headers sent, testing that warden authenticates correctly.
+      get protected_route, {}
+
+      @resp_token       = response.headers['access-token']
+      @resp_client_id   = response.headers['client']
+      @resp_expiry      = response.headers['expiry']
+      @resp_uid         = response.headers['uid']
+    end
+
+    it 'should return success status' do
+      expect(response.status).to eq 200
+    end
+
+    it 'should receive new token after successful request' do
+      expect(@resp_token).not_to be_nil
+    end
+
+    it 'should set the token expiry in the auth header' do
+      expect(@resp_expiry).not_to be_nil
+    end
+
+    it 'should return the client id in the auth header' do
+      expect(@resp_client_id).not_to be_nil
+    end
+
+    it "should return the user's uid in the auth header" do
+      expect(@resp_uid).not_to be_nil
     end
   end
 end

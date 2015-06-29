@@ -5,6 +5,7 @@ module GrapeTokenAuth
     module TokenAuth
       def self.included(base)
         base.serialize :tokens, JSON
+        base.after_initialize { self.tokens ||= {} }
       end
 
       def create_new_auth_token(client_id = nil)

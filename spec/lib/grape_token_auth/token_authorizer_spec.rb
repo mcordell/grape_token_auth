@@ -4,6 +4,8 @@ module GrapeTokenAuth
   RSpec.describe TokenAuthorizer do
     let(:data) { instance_double('AuthorizerData') }
 
+    before { allow(data).to receive(:exisiting_warden_user).with(:user) }
+
     subject { TokenAuthorizer.new(data) }
 
     describe '.authenticate_from_token' do

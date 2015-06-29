@@ -21,6 +21,14 @@ module GrapeTokenAuth
       )
     end
 
+    def exisiting_warden_user(scope)
+      warden_user =  warden.user(scope)
+      return unless warden_user && warden_user.tokens[client_id].nil?
+      resource = warden_user
+      resource.create_new_auth_token
+      resource
+    end
+
     def token_prerequisites_present?
       token.present? && uid.present?
     end
