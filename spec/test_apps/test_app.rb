@@ -1,3 +1,6 @@
+root_dir = File.expand_path("../models", __FILE__)
+Dir.glob(root_dir + '/*.rb').each { |path| require path }
+
 GrapeTokenAuth.setup! do |config|
   config.mappings = { user: User, man: Man }
 end

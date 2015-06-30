@@ -1,9 +1,9 @@
 module GrapeTokenAuth
   class Configuration
-    ACCESS_TOKEN_KEY = 'HTTP_ACCESS_TOKEN'
-    EXPIRY_KEY = 'HTTP_EXPIRY'
-    UID_KEY = 'HTTP_UID'
-    CLIENT_KEY = 'HTTP_CLIENT'
+    ACCESS_TOKEN_KEY = 'access-token'
+    EXPIRY_KEY = 'expiry'
+    UID_KEY = 'uid'
+    CLIENT_KEY = 'client'
 
     attr_accessor :token_lifespan,
                   :batch_request_buffer_throttle,

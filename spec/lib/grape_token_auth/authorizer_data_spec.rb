@@ -13,10 +13,10 @@ module GrapeTokenAuth
         let(:expiry)       { '2015-12-12' }
         let(:env_hash) do
           {
-            'HTTP_ACCESS_TOKEN' => access_token,
-            'HTTP_EXPIRY'       => expiry,
-            'HTTP_UID'          => uid,
-            'HTTP_CLIENT'       => client
+            'access-token' => access_token,
+            'expiry'       => expiry,
+            'uid'          => uid,
+            'client'       => client
           }
         end
         let(:data) { GrapeTokenAuth::AuthorizerData.from_env(env_hash) }
