@@ -3,6 +3,8 @@ require 'bcrypt'
 module GrapeTokenAuth
   module ActiveRecord
     module TokenAuth
+      attr_accessor :password, :password_confirmation
+
       def self.included(base)
         base.serialize :tokens, JSON
         base.after_initialize { self.tokens ||= {} }
@@ -33,10 +35,8 @@ module GrapeTokenAuth
         build_auth_header(token, client_id)
       end
 
-
       def valid_token?(token, client_id)
         return false unless tokens && tokens[client_id]
-
         return true if token_is_current?(token, client_id)
         return true if token_can_be_reused?(token, client_id)
 

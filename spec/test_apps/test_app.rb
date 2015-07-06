@@ -37,4 +37,6 @@ class TestApp < Grape::API
       authenticated?: authenticated?(:man)
     }
   end
+
+  mount GrapeTokenAuth::RegistrationAPI => '/auth'
 end

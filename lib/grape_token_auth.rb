@@ -1,4 +1,6 @@
 require 'grape_token_auth/version'
+require 'forwardable'
+require 'grape'
 Dir.glob(File.expand_path('../**/*rb', __FILE__)).each { |path| require path }
 
 module GrapeTokenAuth

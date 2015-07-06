@@ -25,7 +25,7 @@ module GrapeTokenAuth
         end
 
         describe 'the returned hash' do
-          it 'returns a hash that matches the authentication header format' do
+          it 'matches the authentication header format' do
             expect(@returned_hash).to match(auth_header_format(client_id))
           end
         end
@@ -139,6 +139,32 @@ module GrapeTokenAuth
             subject.reload
             expect(DateTime.parse(subject.tokens[@client_id]['updated_at']))
               .to eq(DateTime.parse(@first_updated_at) + 1.hour)
+          end
+        end
+      end
+
+      describe 'password confirmation' do
+        context 'when the confimation does not match the password' do
+          before do
+            subject.password = 'password1'
+            subject.password_confirmation = 'not_password'
+          end
+
+          it do
+            pending 'Solution to the confirmations problem'
+            is_expected.not_to be_valid
+          end
+        end
+
+        context 'when the password is nil' do
+          before do
+            subject.password = nil
+            subject.password_confirmation = nil
+          end
+
+          it do
+            pending 'Solution to the confirmations problem'
+            is_expected.not_to be_valid
           end
         end
       end
