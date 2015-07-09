@@ -3,7 +3,7 @@ require 'spec_helper'
 module GrapeTokenAuth
   module ActiveRecord
     RSpec.describe TokenAuth do
-      subject { User.new(uid: 'hello') }
+      subject { User.new(uid: 'hello', password: 'secret', password_confirmation: 'secret') }
 
       it { is_expected.to respond_to :while_record_locked }
 
@@ -151,7 +151,6 @@ module GrapeTokenAuth
           end
 
           it do
-            pending 'Solution to the confirmations problem'
             is_expected.not_to be_valid
           end
         end
@@ -163,7 +162,6 @@ module GrapeTokenAuth
           end
 
           it do
-            pending 'Solution to the confirmations problem'
             is_expected.not_to be_valid
           end
         end

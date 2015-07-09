@@ -8,6 +8,16 @@ module GrapeTokenAuth
       def self.included(base)
         base.serialize :tokens, JSON
         base.after_initialize { self.tokens ||= {} }
+        base.validates :password, presence: true, on: :create
+        base.validate :password_confirmation_matches, on: :create
+      end
+
+      def password_confirmation_matches
+        unless password.present? && password_confirmation.present? &&
+               password == password_confirmation
+          errors.add(:password_confirmation,
+                     'password confirmation does not match')
+        end
       end
 
       def create_new_auth_token(client_id = nil)
