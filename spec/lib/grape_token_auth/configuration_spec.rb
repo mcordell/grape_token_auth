@@ -26,6 +26,12 @@ module GrapeTokenAuth
       end
     end
 
+    describe '.redirect_whitelist' do
+      it 'defaults to redirect_whitelist' do
+        expect(subject.redirect_whitelist).to be_nil
+      end
+    end
+
     describe '.scope_to_class' do
       context 'when scopes are not setup' do
         it 'throws an error' do

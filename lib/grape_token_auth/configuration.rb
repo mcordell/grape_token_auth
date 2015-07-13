@@ -8,7 +8,8 @@ module GrapeTokenAuth
     attr_accessor :token_lifespan,
                   :batch_request_buffer_throttle,
                   :change_headers_on_each_request,
-                  :mappings
+                  :mappings,
+                  :redirect_whitelist
 
     def initialize
       @token_lifespan                 = 2.weeks

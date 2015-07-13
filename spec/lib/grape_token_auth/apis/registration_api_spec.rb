@@ -3,6 +3,15 @@ module GrapeTokenAuth
     let(:data) { JSON.parse(response.body) }
     let!(:user_count) { User.count }
     let(:last_user) { User.last }
+    let(:valid_attributes) do
+      {
+        email: 'test@example.com',
+        password: 'secret123',
+        password_confirmation: 'secret123',
+        confirm_success_url: 'http://www.example.com',
+        unpermitted_param: '(x_x)'
+      }
+    end
 
     describe 'POSTing with an empty body' do
       before do
@@ -27,16 +36,6 @@ module GrapeTokenAuth
     end
 
     describe 'successful registration' do
-      let(:valid_attributes) do
-        {
-          email: 'test@example.com',
-          password: 'secret123',
-          password_confirmation: 'secret123',
-          confirm_success_url: 'http://www.example.com',
-          unpermitted_param: '(x_x)'
-        }
-      end
-
       before do
         post '/auth', valid_attributes
       end
@@ -60,6 +59,41 @@ module GrapeTokenAuth
 
       it 'new user password should not be returned' do
         expect(data['data']['password']).to be_nil
+      end
+    end
+
+    context 'using "+" in email' do
+      let(:plus_email) { 'ak+testing@gmail.com' }
+      before { post '/auth', valid_attributes.merge(email: plus_email) }
+
+      it 'successfully registers a user' do
+        expect(data['data']['email']).to eq plus_email
+      end
+    end
+
+    describe 'using redirect_whitelist' do
+      let(:valid_redirect_url) { 'http://good.com' }
+      before do
+        GrapeTokenAuth.configure do |config|
+          config.redirect_whitelist = [valid_redirect_url]
+        end
+        post '/auth', valid_attributes.merge(confirm_success_url: redirect_url)
+      end
+
+      after { GrapeTokenAuth.configure { |c| c.redirect_whitelist = nil } }
+
+      context 'when authorization params contain a valid redirect url' do
+        let(:redirect_url) { valid_redirect_url }
+        it 'succeeds' do
+          expect(response.status).to eq 200
+        end
+      end
+
+      context 'when authorization params contain a valid redirect url' do
+        let(:redirect_url) { 'http://bad.com' }
+        it 'fails' do
+          expect(response.status).to eq 403
+        end
       end
     end
   end
