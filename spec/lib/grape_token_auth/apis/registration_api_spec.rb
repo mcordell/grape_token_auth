@@ -73,6 +73,7 @@ module GrapeTokenAuth
 
     describe 'using redirect_whitelist' do
       let(:valid_redirect_url) { 'http://good.com' }
+
       before do
         GrapeTokenAuth.configure do |config|
           config.redirect_whitelist = [valid_redirect_url]
@@ -93,6 +94,38 @@ module GrapeTokenAuth
         let(:redirect_url) { 'http://bad.com' }
         it 'fails' do
           expect(response.status).to eq 403
+        end
+      end
+    end
+
+    describe 'adding extra params' do
+      let(:operating_thetan) { 2 }
+      let(:new_user)         { User.last }
+
+      context 'passing a white-listed attribute' do
+        before do
+          GrapeTokenAuth.configure do |config|
+            config.param_white_list = { user: [:operating_thetan] }
+          end
+
+          post '/auth', valid_attributes.merge(
+            operating_thetan: operating_thetan)
+        end
+
+        it 'sets the attribute on the new model' do
+          expect(response.status).to eq 200
+          expect(new_user.operating_thetan).to eq operating_thetan
+        end
+      end
+
+      context 'passing an attribute not in the white-list' do
+        before do
+          post '/auth', valid_attributes.merge(admin: 1)
+        end
+
+        it 'does not set the attribue on the new model' do
+          expect(response.status).to eq 200
+          expect(new_user.admin).not_to eq 1
         end
       end
     end

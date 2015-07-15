@@ -9,7 +9,8 @@ module GrapeTokenAuth
                   :batch_request_buffer_throttle,
                   :change_headers_on_each_request,
                   :mappings,
-                  :redirect_whitelist
+                  :redirect_whitelist,
+                  :param_white_list
 
     def initialize
       @token_lifespan                 = 2.weeks

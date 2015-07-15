@@ -32,6 +32,12 @@ module GrapeTokenAuth
       end
     end
 
+    describe '.param_white_list' do
+      it 'defaults to nil' do
+        expect(subject.param_white_list).to be_nil
+      end
+    end
+
     describe '.scope_to_class' do
       context 'when scopes are not setup' do
         it 'throws an error' do
