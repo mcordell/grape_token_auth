@@ -2,14 +2,15 @@ module GrapeTokenAuth
   class ResourceCreator
     attr_reader :resource, :errors, :scope
 
-    def initialize(params, configuration)
+    def initialize(params, configuration, scope = :user)
       @configuration = configuration
       @params = params
       @errors = []
-      @scope = :user
+      @scope = scope
     end
 
     def create!
+      validate_scope!
       validate_params!
       return false unless errors.empty?
       create_resource!
@@ -19,20 +20,29 @@ module GrapeTokenAuth
 
     private
 
-    attr_reader :configuration, :params
+    attr_reader :configuration, :params, :resource_class
+
+    def validate_scope!
+      @resource_class = configuration.scope_to_class(scope)
+      fail ScopeUndefinedError.new(nil, scope) unless resource_class
+    end
 
     def create_resource!
-      @resource = User.create(permitted_params)
-      errors.merge(@resource.errors.messages) unless @resource.valid?
+      @resource = resource_class.create(permitted_params)
+      return if @resource.valid?
+      pull_validation_messages
+    end
+
+    def pull_validation_messages
+      @resource.errors.messages.map do |k, v|
+        v.each { |e| errors << "#{k} #{e}" }
+      end
     end
 
     def permitted_params
       permitted_attributes.each_with_object({}) do |key, permitted|
-        if params.key? key
-          permitted[key] = params[key]
-        elsif params.key? key.to_s
-          permitted[key] = params[key.to_s]
-        end
+        value = find_with_indifference(params, key)
+        permitted[key] = value if value
       end
     end
 
@@ -50,8 +60,19 @@ module GrapeTokenAuth
     end
 
     def unpack_params
-      { email: params['email'], password: params['password'],
-        password_confirmation: params['password_confirmation'] }
+      [:email, :password_confirmation, :password]
+        .each_with_object({}) do |key, unpacked|
+        unpacked[key] = find_with_indifference(params, key)
+      end
+    end
+
+    def find_with_indifference(hash, key)
+      if hash.key?(key.to_sym)
+        return hash[key.to_sym]
+      elsif hash.key?(key.to_s)
+        return hash[key.to_s]
+      end
+      nil
     end
 
     def validation_message(label, value)
