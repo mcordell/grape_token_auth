@@ -161,5 +161,26 @@ module GrapeTokenAuth
         expect(RegistrationAPI.resource_scope).to eq :user
       end
     end
+
+    describe 'existing users' do
+      let!(:existing_user) { FactoryGirl.create(:user) }
+
+      before do
+        @user_count = User.count
+        post '/auth', valid_attributes.merge(email: existing_user.email)
+      end
+
+      it 'request should not be successful' do
+        expect(response.status).to eq 403
+      end
+
+      it 'user should not have been created' do
+        expect(User.count).to eq @user_count
+      end
+
+      it 'error should be returned in the response' do
+        expect(data['error']).to be_present
+      end
+    end
   end
 end

@@ -10,6 +10,7 @@ module GrapeTokenAuth
         base.after_initialize { self.tokens ||= {} }
         base.validates :password, presence: true, on: :create
         base.validate :password_confirmation_matches, on: :create
+        base.validates :email, uniqueness: true
       end
 
       def password_confirmation_matches

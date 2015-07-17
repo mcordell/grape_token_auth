@@ -14,9 +14,21 @@ module GrapeTokenAuth
           errors = ['redirect url is not in whitelist']
           bad_request(errors, 403) unless url_valid
         end
+
+        def validate_not_empty!
+          if params.empty?
+            errors = ['email, password, password_confirmation \
+                      params are required']
+            bad_request errors, 422
+          else
+            false
+          end
+        end
       end
 
       base.post '/' do
+        empty_params_error = validate_not_empty!
+        return present(empty_params_error) if empty_params_error
         redirect_error = validate_redirect_url!
         return present(redirect_error) if redirect_error
         mapping = base.resource_scope
@@ -26,7 +38,7 @@ module GrapeTokenAuth
           status 200
           present(data: creator.resource)
         else
-          present bad_request(creator.errors)
+          present bad_request(creator.errors, 403)
         end
       end
 
