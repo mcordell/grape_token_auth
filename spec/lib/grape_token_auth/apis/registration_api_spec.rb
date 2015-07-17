@@ -62,6 +62,32 @@ module GrapeTokenAuth
       end
     end
 
+    describe 'POSTing to other mounted registration scope' do
+      context 'with valid param' do
+        let!(:user_count) { User.count }
+        let!(:man_count) { Man.count }
+        let!(:previous_config) { GrapeTokenAuth.configuration }
+
+        before do
+          GrapeTokenAuth.configure do |config|
+            config.mappings = { user: User, man: Man }
+          end
+
+          post '/man_auth', valid_attributes
+        end
+
+        after { GrapeTokenAuth.configuration = previous_config }
+
+        it 'creates the other type of resource' do
+          expect(Man.count).to eq man_count + 1
+        end
+
+        it 'does not create the user type resource' do
+          expect(User.count).to eq user_count
+        end
+      end
+    end
+
     context 'using "+" in email' do
       let(:plus_email) { 'ak+testing@gmail.com' }
       before { post '/auth', valid_attributes.merge(email: plus_email) }
@@ -127,6 +153,12 @@ module GrapeTokenAuth
           expect(response.status).to eq 200
           expect(new_user.admin).not_to eq 1
         end
+      end
+    end
+
+    describe '#resource_scope' do
+      it 'defaults to :user' do
+        expect(RegistrationAPI.resource_scope).to eq :user
       end
     end
   end

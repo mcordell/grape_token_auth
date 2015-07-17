@@ -1,4 +1,4 @@
-root_dir = File.expand_path("../models", __FILE__)
+root_dir = File.expand_path('../models', __FILE__)
 Dir.glob(root_dir + '/*.rb').each { |path| require path }
 
 GrapeTokenAuth.setup! do |config|
@@ -9,6 +9,7 @@ class TestApp < Grape::API
   format :json
 
   include GrapeTokenAuth::TokenAuthentication
+  include GrapeTokenAuth::ApiHelpers
 
   get '/' do
     authenticate_user!
@@ -38,5 +39,6 @@ class TestApp < Grape::API
     }
   end
 
-  mount GrapeTokenAuth::RegistrationAPI => '/auth'
+  mount_registration(to: '/auth', for: :user)
+  mount_registration(to: '/man_auth', for: :man)
 end

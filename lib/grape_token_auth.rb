@@ -7,6 +7,8 @@ module GrapeTokenAuth
   class << self
     extend Forwardable
 
+    attr_writer :configuration
+
     def configure
       yield configuration if block_given?
     end
