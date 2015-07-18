@@ -182,5 +182,39 @@ module GrapeTokenAuth
         expect(data['error']).to be_present
       end
     end
+
+    describe 'Destroy user account' do
+      describe 'success' do
+        let!(:existing_user) { FactoryGirl.create(:user) }
+
+        before do
+          auth_headers  = existing_user.create_new_auth_token
+          client_id     = auth_headers['client']
+
+          # ensure request is not treated as batch request
+          age_token(existing_user, client_id)
+
+          delete '/auth.json', auth_headers
+        end
+
+        it 'is successful' do
+          expect(response.status).to eq 200
+        end
+
+        it 'deletes the existing user' do
+          expect(User.where(id: existing_user.id).first).to be_nil
+        end
+      end
+
+      describe 'failure: no auth headers' do
+        before do
+          delete '/auth'
+        end
+
+        it 'request returns 404 (not found) status' do
+          expect(response.status).to eq 404
+        end
+      end
+    end
   end
 end

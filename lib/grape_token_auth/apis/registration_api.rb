@@ -42,6 +42,14 @@ module GrapeTokenAuth
         end
       end
 
+      base.delete do
+        token_authorizer = TokenAuthorizer.new(AuthorizerData.from_env(env))
+        user = token_authorizer.find_resource(base.resource_scope)
+        return present bad_request(['User not found.'], 404) unless user
+        user.delete
+        status 200
+      end
+
       base.format :json
     end
   end

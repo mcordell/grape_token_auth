@@ -7,11 +7,18 @@ module GrapeTokenAuth
     end
 
     def authenticate_from_token(scope)
-      @resource_class =  GrapeTokenAuth.configuration.scope_to_class(scope)
+      initialize_resource_class(scope)
       return nil unless resource_class
 
       resource_from_existing_warden_user(scope)
       return resource if correct_resource_type_logged_in?
+
+      find_resource(scope)
+    end
+
+    def find_resource(scope)
+      initialize_resource_class(scope)
+      return nil unless resource_class
 
       return nil unless data.token_prerequisites_present?
 
@@ -24,6 +31,10 @@ module GrapeTokenAuth
     private
 
     attr_reader :resource_class, :user, :resource
+
+    def initialize_resource_class(scope)
+      @resource_class =  GrapeTokenAuth.configuration.scope_to_class(scope)
+    end
 
     def load_user_from_uid
       @user = resource_class.find_by_uid(data.uid)
