@@ -8,7 +8,7 @@ module GrapeTokenAuth
 
     subject { TokenAuthorizer.new(data) }
 
-    describe '.authenticate_from_token' do
+    describe '#authenticate_from_token' do
       context 'when scopes have not been setup' do
         before { setup_scopes({}) }
 

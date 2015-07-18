@@ -10,15 +10,16 @@ module GrapeTokenAuth
         base.after_initialize { self.tokens ||= {} }
         base.validates :password, presence: true, on: :create
         base.validate :password_confirmation_matches, on: :create
-        base.validates :email, uniqueness: true
+        base.validates :email, uniqueness: { scope: :provider },
+                               format: { with: Configuration::EMAIL_VALIDATION,
+                                         message: 'invalid email' }
       end
 
       def password_confirmation_matches
-        unless password.present? && password_confirmation.present? &&
-               password == password_confirmation
-          errors.add(:password_confirmation,
-                     'password confirmation does not match')
-        end
+        return if password.present? && password_confirmation.present? &&
+                  password == password_confirmation
+        errors.add(:password_confirmation,
+                   'password confirmation does not match')
       end
 
       def create_new_auth_token(client_id = nil)

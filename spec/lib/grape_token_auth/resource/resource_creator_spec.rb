@@ -64,6 +64,11 @@ module GrapeTokenAuth
             returned = rc.create!
             expect(returned).to eq User.last
           end
+
+          it "sets the provider of the resource to 'email'" do
+            returned = rc.create!
+            expect(returned.provider).to eq 'email'
+          end
         end
 
         context 'when standard param keys are symbols' do

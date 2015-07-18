@@ -28,7 +28,7 @@ module GrapeTokenAuth
     end
 
     def create_resource!
-      @resource = resource_class.create(permitted_params)
+      @resource = resource_class.create(permitted_params.merge(provider: 'email'))
       return if @resource.valid?
       pull_validation_messages
     end

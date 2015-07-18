@@ -4,6 +4,7 @@ module GrapeTokenAuth
     EXPIRY_KEY = 'expiry'
     UID_KEY = 'uid'
     CLIENT_KEY = 'client'
+    EMAIL_VALIDATION = /\A[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]+\z/
 
     attr_accessor :token_lifespan,
                   :batch_request_buffer_throttle,

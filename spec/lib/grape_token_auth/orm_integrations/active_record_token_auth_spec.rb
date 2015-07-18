@@ -3,7 +3,7 @@ require 'spec_helper'
 module GrapeTokenAuth
   module ActiveRecord
     RSpec.describe TokenAuth do
-      subject { User.new(uid: 'hello', password: 'secret', password_confirmation: 'secret') }
+      subject { FactoryGirl.build(:user) }
 
       it { is_expected.to respond_to :while_record_locked }
 
@@ -164,6 +164,33 @@ module GrapeTokenAuth
           it do
             is_expected.not_to be_valid
           end
+        end
+      end
+
+      describe 'email validation' do
+        context 'when the email is not valid' do
+          before { subject.email = 'false_email@' }
+
+          it { is_expected.not_to be_valid }
+        end
+      end
+
+      describe 'duplicate email' do
+        let!(:email_user) { FactoryGirl.create(:user) }
+
+        context 'with the same provider' do
+          subject { FactoryGirl.build(:user, email: email_user.email) }
+
+          it { is_expected.not_to be_valid }
+        end
+
+        context 'with a different provider' do
+          subject do
+            FactoryGirl.build(:user, provider: 'facebook',
+                                     email: email_user.email)
+          end
+
+          it { is_expected.to be_valid }
         end
       end
     end
