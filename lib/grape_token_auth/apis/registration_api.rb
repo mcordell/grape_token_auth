@@ -24,6 +24,11 @@ module GrapeTokenAuth
             false
           end
         end
+
+        def find_resource(env, mapping)
+          token_authorizer = TokenAuthorizer.new(AuthorizerData.from_env(env))
+          token_authorizer.find_resource(mapping)
+        end
       end
 
       base.post '/' do
@@ -43,11 +48,28 @@ module GrapeTokenAuth
       end
 
       base.delete do
-        token_authorizer = TokenAuthorizer.new(AuthorizerData.from_env(env))
-        user = token_authorizer.find_resource(base.resource_scope)
-        return present bad_request(['User not found.'], 404) unless user
+        user = find_resource(env, base.resource_scope)
+        return present bad_request(['resource not found.'], 404) unless user
         user.delete
         status 200
+      end
+
+      base.put do
+        empty_params_error = validate_not_empty!
+        return present(empty_params_error) if empty_params_error
+        resource = find_resource(env, base.resource_scope)
+        return present bad_request(['resource not found.'], 404) unless resource
+
+        updater = ResourceUpdater.new(resource,
+                                      params,
+                                      GrapeTokenAuth.configuration,
+                                      base.resource_scope)
+        if updater.update!
+          status 200
+          present(data: updater.resource)
+        else
+          present bad_request(updater.errors, 403)
+        end
       end
 
       base.format :json

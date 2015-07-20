@@ -13,6 +13,12 @@ module GrapeTokenAuth
         base.validates :email, uniqueness: { scope: :provider },
                                format: { with: Configuration::EMAIL_VALIDATION,
                                          message: 'invalid email' }
+        base.before_update :synchronize_email_and_uid
+
+
+        class << base
+          attr_accessor :case_insensitive_keys
+        end
       end
 
       def password_confirmation_matches
@@ -66,6 +72,10 @@ module GrapeTokenAuth
       end
 
       private
+
+      def synchronize_email_and_uid
+        self.uid = email
+      end
 
       def token_is_current?(token, client_id)
         client_id_info = tokens[client_id]

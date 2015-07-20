@@ -1,6 +1,7 @@
 module GrapeTokenAuth
   describe RegistrationAPI do
     let(:data) { JSON.parse(response.body) }
+    let!(:existing_user) { FactoryGirl.create(:user) }
     let!(:user_count) { User.count }
     let(:last_user) { User.last }
     let(:valid_attributes) do
@@ -163,8 +164,6 @@ module GrapeTokenAuth
     end
 
     describe 'existing users' do
-      let!(:existing_user) { FactoryGirl.create(:user) }
-
       before do
         @user_count = User.count
         post '/auth', valid_attributes.merge(email: existing_user.email)
@@ -185,8 +184,6 @@ module GrapeTokenAuth
 
     describe 'Destroy user account' do
       describe 'success' do
-        let!(:existing_user) { FactoryGirl.create(:user) }
-
         before do
           auth_headers  = existing_user.create_new_auth_token
           client_id     = auth_headers['client']
@@ -213,6 +210,126 @@ module GrapeTokenAuth
 
         it 'request returns 404 (not found) status' do
           expect(response.status).to eq 404
+        end
+      end
+    end
+
+    describe 'updating a user account' do
+      describe 'existing user' do
+        let(:auth_headers)   { existing_user.create_new_auth_token }
+        let(:client_id)      { auth_headers['client'] }
+
+        before do
+          # ensure request is not treated as batch request
+          age_token(existing_user, client_id)
+
+          GrapeTokenAuth.configure do |config|
+            config.param_white_list = { user: [:operating_thetan] }
+          end
+        end
+
+        describe 'making a PUT request' do
+          context 'with valid_attributes' do
+            let(:new_operating_thetan) { 1_000_000 }
+            let(:new_email) { 'AlternatingCase2@example.com' }
+            let(:resource_class) { User }
+            let(:request_params) do
+              {
+                operating_thetan: new_operating_thetan,
+                email: new_email
+              }
+            end
+
+            it 'is successful' do
+              put '/auth', request_params, auth_headers
+              expect(response.status).to eq 200
+            end
+
+            it 'case sensitive attributes update' do
+              resource_class.case_insensitive_keys = []
+              put '/auth', request_params, auth_headers
+              existing_user.reload
+              expect(existing_user.operating_thetan).to eq new_operating_thetan
+              expect(existing_user.email).to eq new_email
+              expect(existing_user.uid).to eq new_email
+            end
+
+            it 'case insensitive attributes update' do
+              resource_class.case_insensitive_keys = [:email]
+              put '/auth', request_params, auth_headers
+              existing_user.reload
+              expect(existing_user.operating_thetan).to eq new_operating_thetan
+              expect(existing_user.email).to eq new_email.downcase
+              expect(existing_user.uid).to eq new_email.downcase
+            end
+          end
+
+          context 'with an empty body' do
+            let!(:existing_email) { existing_user.email }
+
+            before do
+              put '/auth', {}, auth_headers
+              existing_user.reload
+            end
+
+            it 'fails with a 422 response' do
+              expect(response.status).to eq 422
+            end
+
+            it 'returns an error message' do
+              expect(data['error']).not_to be_empty
+            end
+
+            it 'return an error status' do
+              expect(data['status']).to eq 'error'
+            end
+
+            it 'does not save user changes' do
+              expect(existing_user.email).to eq existing_email
+            end
+          end
+
+          context 'with an invalid parameter' do
+            let(:new_operating_thetan) { 'blegh' }
+
+            before do
+              put '/auth', {
+                operating_thetan: new_operating_thetan
+              }, auth_headers
+              existing_user.reload
+            end
+
+            it 'fails with a 403 status' do
+              expect(response.status).to eq 403
+            end
+
+            it 'errors were provided with response' do
+              expect(data['error'].length).to be > 0
+            end
+          end
+        end
+
+        context 'with valid params but an expired token' do
+          let(:new_operating_thetan) { 3 }
+
+          before do
+            expire_token(existing_user, client_id)
+
+            put '/auth', {
+              operating_thetan: new_operating_thetan
+            }, auth_headers
+
+            existing_user.reload
+          end
+
+          it 'fails with a 404 status' do
+            expect(response.status).to eq 404
+          end
+
+          it 'does not save changes to the user' do
+            expect(existing_user.operating_thetan)
+              .not_to eq new_operating_thetan
+          end
         end
       end
     end

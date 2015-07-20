@@ -50,6 +50,13 @@ def age_token(user, client_id)
   user.save!
 end
 
+def expire_token(user, client_id)
+  age = Time.now -
+    (GrapeTokenAuth.configuration.token_lifespan.to_f + 10.seconds)
+  user.tokens[client_id]['expiry'] = age.to_i
+  user.save!
+end
+
 def auth_header_format(client_id)
   {
     'access-token' => a_kind_of(String),

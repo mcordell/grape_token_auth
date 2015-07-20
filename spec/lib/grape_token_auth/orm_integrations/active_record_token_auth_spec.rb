@@ -7,7 +7,7 @@ module GrapeTokenAuth
 
       it { is_expected.to respond_to :while_record_locked }
 
-      describe '.create_new_auth_token' do
+      describe '#create_new_auth_token' do
         let(:token) { 'blahblah' }
         let(:client_id) { 'someclientid' }
         let(:token_lifespan) { 3600 }
@@ -76,7 +76,7 @@ module GrapeTokenAuth
         end
       end
 
-      describe '.valid_token?' do
+      describe '#valid_token?' do
         let(:credentials_hash)  { subject.create_new_auth_token }
         let(:valid_token)       { credentials_hash['access-token'] }
         let(:valid_client_id)   { credentials_hash['client'] }
@@ -116,7 +116,7 @@ module GrapeTokenAuth
         end
       end
 
-      describe '.extend_batch_buffer' do
+      describe '#extend_batch_buffer' do
         before do
           Timecop.freeze
           credentials_hash = subject.create_new_auth_token
@@ -141,6 +141,13 @@ module GrapeTokenAuth
               .to eq(DateTime.parse(@first_updated_at) + 1.hour)
           end
         end
+      end
+
+      describe 'included class methods' do
+        subject { User }
+
+        it { is_expected.to respond_to :case_insensitive_keys }
+        it { is_expected.to respond_to :case_insensitive_keys= }
       end
 
       describe 'password confirmation' do
@@ -191,6 +198,24 @@ module GrapeTokenAuth
           end
 
           it { is_expected.to be_valid }
+        end
+      end
+    end
+
+    describe 'syncing of email and uid on update' do
+      let(:user) do
+        FactoryGirl.create(:user, uid: 'dude@apple.co', email: 'dude@apple.co')
+      end
+      let(:new_email) { 'guy@happy.com' }
+
+      context 'when the email changes' do
+        before do
+          user.update(email: new_email)
+          user.reload
+        end
+
+        it 'changes the uid to match the email' do
+          expect(user.uid).to eq new_email
         end
       end
     end
