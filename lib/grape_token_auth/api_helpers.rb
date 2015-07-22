@@ -34,7 +34,7 @@ module GrapeTokenAuth
         path = opts[:to] || '/'
 
         if mapping = opts[:for]
-          api = create_registrable_subclass(mapping)
+          api = create_api_subclass('RegistrationAPI', mapping)
         else
           api = GrapeTokenAuth::RegistrationAPI
         end
@@ -42,9 +42,21 @@ module GrapeTokenAuth
         mount api => path
       end
 
+      def mount_sessions(opts = {})
+        path = opts[:to] || '/'
+
+        if mapping = opts[:for]
+          api = create_api_subclass('SessionsAPI', mapping)
+        else
+          api = GrapeTokenAuth::SessionsAPI
+        end
+
+        mount api => path
+      end
+
       private
 
-      def create_registrable_subclass(mapping)
+      def create_api_subclass(class_name, mapping)
         resource_class = GrapeTokenAuth.configuration.scope_to_class(mapping)
         fail ScopeUndefinedError.new(nil, mapping) unless resource_class
         scope_name = mapping.to_s.split('_').collect(&:capitalize).join
@@ -56,8 +68,8 @@ module GrapeTokenAuth
           end
         end
         klass.instance_variable_set(:@resource_scope, mapping)
-        klass.include(GrapeTokenAuth::RegistrationApiCore)
-        GrapeTokenAuth.const_set(scope_name + 'RegistrationAPI', klass)
+        klass.include(GrapeTokenAuth.const_get("#{class_name}Core"))
+        GrapeTokenAuth.const_set("#{scope_name}#{class_name}", klass)
       end
     end
   end

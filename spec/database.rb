@@ -50,6 +50,7 @@ class Database
         t.datetime 'updated_at'
         t.string   'provider',               default: '', null: false
         t.string   'uid',                    default: '', null: false
+        t.string   'nickname',               default: '', null: false
         t.text     'tokens'
       end
     end

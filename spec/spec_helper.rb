@@ -57,6 +57,10 @@ def expire_token(user, client_id)
   user.save!
 end
 
+def xhr(verb, path, params)
+  send(verb, path, params.merge('HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest'))
+end
+
 def auth_header_format(client_id)
   {
     'access-token' => a_kind_of(String),

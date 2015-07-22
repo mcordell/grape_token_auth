@@ -32,6 +32,10 @@ module GrapeTokenAuth
         it 'defines class method mount_registration' do
           expect(subject.class).to respond_to :mount_registration
         end
+
+        it 'defines class method mount_sessions' do
+          expect(subject.class).to respond_to :mount_sessions
+        end
       end
 
       describe '.mount_registration' do
@@ -78,6 +82,58 @@ module GrapeTokenAuth
         context 'when the for param contains a valid scope' do
           before do
             SomeAPI.mount_registration(for: :dog)
+          end
+
+          it 'creates a subclass of the registrable API with that scope' do
+            expect(GrapeTokenAuth::DogRegistrationAPI.resource_scope).to eq :dog
+          end
+        end
+      end
+
+      describe '.mount_sessions' do
+        before do
+          class SomeAPI < Grape::API
+            format :json
+            include GrapeTokenAuth::ApiHelpers
+          end
+        end
+
+        after { GrapeTokenAuth.send(:remove_const, :SomeAPI) }
+
+        context 'with no arguments' do
+          before do
+            SomeAPI.mount_sessions
+          end
+
+          it 'mounts the user RegistrationAPI at root path' do
+            route = SomeAPI.routes[0]
+            expect(route.route_path).to eq '/sign_in(.json)'
+            expect(route.route_method).to eq 'POST'
+          end
+        end
+
+        context 'when the params contains a to: key' do
+          before do
+            SomeAPI.mount_sessions(to: '/auth')
+          end
+
+          it 'mounts the user RegistrationAPI to the path of the value' do
+            route = SomeAPI.routes[0]
+            expect(route.route_path).to eq '/auth/sign_in(.json)'
+            expect(route.route_method).to eq 'POST'
+          end
+        end
+
+        context 'when the for param contains an undefined scope' do
+          it 'raises a ScopeUndefinedError' do
+            expect { SomeAPI.mount_sessions(for: :cat) }
+              .to raise_error ScopeUndefinedError
+          end
+        end
+
+        context 'when the for param contains a valid scope' do
+          before do
+            SomeAPI.mount_sessions(for: :dog)
           end
 
           it 'creates a subclass of the registrable API with that scope' do

@@ -61,6 +61,15 @@ module GrapeTokenAuth
         false
       end
 
+      def password=(new_password)
+        @password = new_password
+        self.encrypted_password = BCrypt::Password.create(new_password)
+      end
+
+      def valid_password?(password)
+        BCrypt::Password.new(encrypted_password) == password
+      end
+
       def while_record_locked(&block)
         with_lock(&block)
       end

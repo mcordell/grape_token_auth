@@ -1,5 +1,5 @@
 module GrapeTokenAuth
-  module RegistrationApiCore
+  module RegistrationAPICore
     def self.included(base)
       base.helpers do
         def bad_request(messages, code = 422)
@@ -83,6 +83,6 @@ module GrapeTokenAuth
       end
     end
 
-    include RegistrationApiCore
+    include RegistrationAPICore
   end
 end

@@ -41,4 +41,6 @@ class TestApp < Grape::API
 
   mount_registration(to: '/auth', for: :user)
   mount_registration(to: '/man_auth', for: :man)
+  mount_sessions(to: '/auth', for: :user)
+  mount_sessions(to: '/man_auth', for: :man)
 end
