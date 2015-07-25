@@ -11,13 +11,15 @@ module GrapeTokenAuth
                   :change_headers_on_each_request,
                   :mappings,
                   :redirect_whitelist,
-                  :param_white_list
+                  :param_white_list,
+                  :authentication_keys
 
     def initialize
       @token_lifespan                 = 2.weeks
       @batch_request_buffer_throttle  = 5.seconds
       @change_headers_on_each_request = true
       @mappings                       = {}
+      @authentication_keys            = [:email]
     end
 
     def scope_to_class(scope = nil)
