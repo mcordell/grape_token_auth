@@ -13,8 +13,16 @@ module GrapeTokenAuth
       end
 
       base.post '/sign_in' do
+        start_time = Time.now
         resource = ResourceFinder.find(base.resource_scope, params)
         if resource && resource.valid_password?(params[:password])
+          data = AuthorizerData.from_env(env)
+          env['rack.session'] ||= {}
+          data.store_resource(resource, base.resource_scope)
+          auth_header = AuthenticationHeader.new(data, start_time)
+          auth_header.headers.each do |key, value|
+            header key, value
+          end
           status 200
           present data: resource
         else

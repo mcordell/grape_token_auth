@@ -5,22 +5,15 @@ module GrapeTokenAuth
       let(:existing_user) { FactoryGirl.create(:user, password: 'secret123', password_confirmation: 'secret123') }
 
       describe 'success' do
-#        let!(:old_sign_in_ip)         { existing_user.current_sign_in_ip }
-#        let!(:old_last_sign_in_at)    { existing_user.last_sign_in_at }
-#        let!(:old_last_sign_in_ip)    { existing_user.last_sign_in_ip }
-#        let!(:old_current_sign_in_at) { existing_user.current_sign_in_at }
-#        let!(:old_sign_in_count)      { existing_user.sign_in_count }
-
         before do
           xhr :post, '/auth/sign_in', {
             email: existing_user.email,
             password: 'secret123'
           }
-#          @new_sign_in_count      = @resource.sign_in_count
-#          @new_current_sign_in_at = @resource.current_sign_in_at
-#          @new_last_sign_in_at    = @resource.last_sign_in_at
-#          @new_sign_in_ip         = @resource.current_sign_in_ip
-#          @new_last_sign_in_ip    = @resource.last_sign_in_ip
+          @resp_token     = response.headers['access-token']
+          @resp_client_id = response.headers['client']
+          @resp_uid       = response.headers['uid']
+          existing_user.reload
         end
 
         it 'succeeds' do
@@ -29,6 +22,20 @@ module GrapeTokenAuth
 
         it "returns the user's data" do
           expect(data['data']['email']).to eq existing_user.email
+        end
+
+        it 'receives a token from the user' do
+          token = existing_user.tokens[@resp_client_id]['token']
+          result = BCrypt::Password.new(token) == @resp_token
+          expect(result).to eq true
+        end
+
+        it 'recieves a client id' do
+          expect(existing_user.tokens.keys).to include(@resp_client_id)
+        end
+
+        it "sets user's uid in the auth header" do
+          expect(@resp_uid).to eq existing_user.uid
         end
 
 #        describe 'trackable' do
