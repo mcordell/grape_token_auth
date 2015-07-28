@@ -1,5 +1,9 @@
 # GrapeTokenAuth
 
+> __This gem is in active development__ and is not ready for production. See this
+issue milestone for reaching [functional parity with devise token auth][10] and
+being ready. Feel free to ping me if you want to help.
+
 GrapeTokenAuth is a token authentication solution for grape. It is compatible
 with [ng-token-auth][1] (for angular) and [j-toker][2] (for jquery) and is meant
 as a [grape][4] (rather than rails) version of [devise_token_auth][3]. As such,
@@ -11,6 +15,11 @@ interested in [grape_devise_token_auth][5].
 This gem is a port of [devise_token-auth][4] written by [Lyann Dylan
 Hurley][6] who did great work and I highly recommend reading his [conceptual
 section on that gem][7].
+
+_Philosophy_
+
+This gem aims to maintain a small direct dependency footprint. As such,
+it currently depends only on grape, warden, and bcrypt.
 
 ## Installation
 
@@ -156,3 +165,4 @@ push git commits and tags, and push the `.gem` file to
 [7]: https://github.com/lynndylanhurley/devise_token_auth#conceptual
 [8]: https://rubygems.org
 [9]: https://github.com/hassox/warden
+[10]: https://github.com/mcordell/grape_token_auth/milestones/Devise%20Token%20Auth%20Functional%20Parity
