@@ -28,14 +28,6 @@ module GrapeTokenAuth
           expect(subject).to respond_to :authenticate_user!
           expect(subject).to respond_to :authenticate_man!
         end
-
-        it 'defines class method mount_registration' do
-          expect(subject.class).to respond_to :mount_registration
-        end
-
-        it 'defines class method mount_sessions' do
-          expect(subject.class).to respond_to :mount_sessions
-        end
       end
 
       describe '.mount_registration' do
@@ -54,9 +46,7 @@ module GrapeTokenAuth
           end
 
           it 'mounts the user RegistrationAPI at root path' do
-            route = SomeAPI.routes[0]
-            expect(route.route_path).to eq '/(.json)'
-            expect(route.route_method).to eq 'POST'
+            expect(SomeAPI).to have_route('POST', '/(.json)')
           end
         end
 
@@ -66,9 +56,7 @@ module GrapeTokenAuth
           end
 
           it 'mounts the user RegistrationAPI to the path of the value' do
-            route = SomeAPI.routes[0]
-            expect(route.route_path).to eq '/auth(.json)'
-            expect(route.route_method).to eq 'POST'
+            expect(SomeAPI).to have_route('POST', '/auth(.json)')
           end
         end
 
@@ -106,9 +94,7 @@ module GrapeTokenAuth
           end
 
           it 'mounts the user RegistrationAPI at root path' do
-            route = SomeAPI.routes[0]
-            expect(route.route_path).to eq '/sign_in(.json)'
-            expect(route.route_method).to eq 'POST'
+            expect(SomeAPI).to have_route('POST', '/sign_in(.json)')
           end
         end
 
@@ -118,9 +104,7 @@ module GrapeTokenAuth
           end
 
           it 'mounts the user RegistrationAPI to the path of the value' do
-            route = SomeAPI.routes[0]
-            expect(route.route_path).to eq '/auth/sign_in(.json)'
-            expect(route.route_method).to eq 'POST'
+            expect(SomeAPI).to have_route('POST', '/auth/sign_in(.json)')
           end
         end
 
