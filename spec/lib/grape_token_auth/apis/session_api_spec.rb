@@ -2,14 +2,16 @@ module GrapeTokenAuth
   describe SessionsAPI do
     let(:data) { JSON.parse(response.body) }
     context 'existing user' do
-      let(:existing_user) { FactoryGirl.create(:user, password: 'secret123', password_confirmation: 'secret123') }
+      let(:existing_user) do
+        FactoryGirl.create(:user, password: 'secret123',
+                                  password_confirmation: 'secret123')
+      end
 
       describe 'success' do
         before do
-          xhr :post, '/auth/sign_in', {
-            email: existing_user.email,
-            password: 'secret123'
-          }
+          xhr :post, '/auth/sign_in', email: existing_user.email,
+                                      password: 'secret123'
+
           @resp_token     = response.headers['access-token']
           @resp_client_id = response.headers['client']
           @resp_uid       = response.headers['uid']
@@ -38,36 +40,38 @@ module GrapeTokenAuth
           expect(@resp_uid).to eq existing_user.uid
         end
 
-#        describe 'trackable' do
-#          it 'sign_in_count incrementns' do
-#            assert_equal @old_sign_in_count + 1, @new_sign_in_count
-#          end
-#
-#          it 'current_sign_in_at is updated' do
-#            refute @old_current_sign_in_at
-#            assert @new_current_sign_in_at
-#          end
-#
-#          it 'last_sign_in_at is updated' do
-#            refute @old_last_sign_in_at
-#            assert @new_last_sign_in_at
-#          end
-#
-#          it 'sign_in_ip is updated' do
-#            refute @old_sign_in_ip
-#            assert_equal "0.0.0.0", @new_sign_in_ip
-#          end
-#
-#          it 'last_sign_in_ip is updated' do
-#            refute @old_last_sign_in_ip
-#            assert_equal "0.0.0.0", @new_last_sign_in_ip
-#          end
-#        end
+        skip 'trackable' do
+          it 'sign_in_count incrementns' do
+            expect(@new_sign_in_count).to eq @old_sign_in_count + 1
+          end
+
+          it 'current_sign_in_at is updated' do
+            refute @old_current_sign_in_at
+            assert @new_current_sign_in_at
+          end
+
+          it 'last_sign_in_at is updated' do
+            refute @old_last_sign_in_at
+            assert @new_last_sign_in_at
+          end
+
+          it 'sign_in_ip is updated' do
+            refute @old_sign_in_ip
+            expect(@new_sign_in_ip).to eq '0.0.0.0'
+          end
+
+          it 'last_sign_in_ip is updated' do
+            refute @old_last_sign_in_ip
+            expect(@new_last_sign_in_ip).to eq '0.0.0.0'
+          end
+        end
       end
 
       describe 'alt auth keys' do
         before do
-          GrapeTokenAuth.configure { |c| c.authentication_keys = [:nickname, :email] }
+          GrapeTokenAuth.configure do |c|
+            c.authentication_keys = [:nickname, :email]
+          end
           xhr :post, '/auth/sign_in', nickname: existing_user.nickname,
                                       password: 'secret123'
         end
@@ -106,14 +110,15 @@ module GrapeTokenAuth
 
       context 'with invalid credentials' do
         before do
-          xhr :post, '/auth/sign_in', email: existing_user.email, password: 'bogus'
+          xhr :post, '/auth/sign_in', email: existing_user.email,
+                                      password: 'bogus'
         end
 
         it 'fails with a 401 response status' do
           expect(response.status).to eq 401
         end
 
-        pending 'has errors' do
+        skip 'has errors' do
           expect(data['errors']).not_to be_nil
         end
       end
@@ -157,13 +162,18 @@ module GrapeTokenAuth
         expect(response.status).to eq 401
       end
 
-      pending 'responds with errors' do
+      skip 'responds with errors' do
+        # for some reason grape is not setting the error message, dunno why
+        # ¯\_(ツ)_/¯.
         expect(data['errors']).not_to be_nil
       end
     end
 
     describe 'Alternate user class' do
-      let(:existing_user) { FactoryGirl.create(:man, password: 'secret123', password_confirmation: 'secret123') }
+      let(:existing_user) do
+        FactoryGirl.create(:man, password: 'secret123',
+                                 password_confirmation: 'secret123')
+      end
 
       before do
         GrapeTokenAuth.configure do |config|
@@ -178,7 +188,8 @@ module GrapeTokenAuth
       end
 
       before do
-        xhr :post, '/man_auth/sign_in', email: existing_user.email, password: 'secret123'
+        xhr :post, '/man_auth/sign_in',
+            email: existing_user.email, password: 'secret123'
       end
 
       it 'request should succeed' do
@@ -190,28 +201,27 @@ module GrapeTokenAuth
       end
     end
 
-#    describe 'User with only :database_authenticatable and :registerable included' do
-#      before do
-#        @request.env['devise.mapping'] = Devise.mappings[:only_email_user]
-#      end
-#
-#      after do
-#        @request.env['devise.mapping'] = Devise.mappings[:user]
-#      end
-#
-#      before do
-#        @existing_user = only_email_users(:user)
-#        @existing_user.save!
-#
-#        xhr :post, :create, {
-#          email: @existing_user.email,
-#          password: 'secret123'
-#        }
-#      end
-#
-#      it 'user should be able to sign in without confirmation' do
-#        expect(response.status).to eq 200
-#      end
-#    end
+    skip 'User with only :database_authenticatable and \
+:registerable included' do
+      before do
+        # setup email user mapping
+      end
+
+      after do
+        # tear down email user mapping
+      end
+
+      before do
+        existing_user = only_email_users(:user)
+        existing_user.save!
+
+        xhr :post, :create, email: @existing_user.email,
+                            password: 'secret123'
+      end
+
+      skip 'user should be able to sign in without confirmation' do
+        expect(response.status).to eq 200
+      end
+    end
   end
 end
