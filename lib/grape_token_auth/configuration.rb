@@ -12,7 +12,8 @@ module GrapeTokenAuth
                   :mappings,
                   :redirect_whitelist,
                   :param_white_list,
-                  :authentication_keys
+                  :authentication_keys,
+                  :omniauth_prefix
 
     def initialize
       @token_lifespan                 = 2.weeks
@@ -20,6 +21,7 @@ module GrapeTokenAuth
       @change_headers_on_each_request = true
       @mappings                       = {}
       @authentication_keys            = [:email]
+      @omniauth_prefix                = '/omniauth'
     end
 
     def scope_to_class(scope = nil)

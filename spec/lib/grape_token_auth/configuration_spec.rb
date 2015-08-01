@@ -68,5 +68,11 @@ module GrapeTokenAuth
         end
       end
     end
+
+    describe '#omniauth_prefix' do
+      it "defaults to '/omniauth'" do
+        expect(subject.omniauth_prefix).to eq '/omniauth'
+      end
+    end
   end
 end
