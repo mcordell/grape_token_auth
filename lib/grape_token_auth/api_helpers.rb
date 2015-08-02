@@ -56,6 +56,7 @@ module GrapeTokenAuth
 
       def mount_omniauth(opts = {})
         path = opts[:to] || '/auth'
+        prefix = GrapeTokenAuth.set_omniauth_path_prefix!
 
         if mapping = opts[:for]
           api = create_api_subclass('OmniAuthAPI', mapping)
@@ -63,8 +64,7 @@ module GrapeTokenAuth
           api = GrapeTokenAuth::OmniAuthAPI
         end
 
-        root_api_path = GrapeTokenAuth.configuration.omniauth_prefix
-        mount GrapeTokenAuth::RootOmniAuthAPI => root_api_path
+        mount GrapeTokenAuth::OmniAuthCallBackRouterAPI => prefix
         mount api => path
       end
 

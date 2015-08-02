@@ -26,6 +26,10 @@ module GrapeTokenAuth
       configure(&block) if block_given?
     end
 
+    def set_omniauth_path_prefix!
+      ::OmniAuth.config.path_prefix = configuration.omniauth_prefix
+    end
+
     private
 
     def add_auth_strategy

@@ -33,6 +33,18 @@ describe GrapeTokenAuth do
     end
   end
 
+  describe '.set_omniauth_prefix!' do
+    let(:prefix_value) { 'someprefixvalue' }
+    before do
+      GrapeTokenAuth.configure { |c| c.omniauth_prefix = prefix_value }
+      GrapeTokenAuth.set_omniauth_path_prefix!
+    end
+
+    it 'sets the OmniAuth prefix to the configured valued' do
+      expect(OmniAuth.config.path_prefix).to eq prefix_value
+    end
+  end
+
   describe '#setup!' do
     context 'when passed a block' do
       before do
