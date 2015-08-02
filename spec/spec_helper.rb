@@ -9,6 +9,7 @@ require 'database_cleaner'
 require_relative './database'
 require 'timecop'
 require 'warden'
+require 'omniauth'
 
 %w(database test_apps factories).each do |word|
   root_dir = File.expand_path("../#{word}", __FILE__)

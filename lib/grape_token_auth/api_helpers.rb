@@ -54,6 +54,20 @@ module GrapeTokenAuth
         mount api => path
       end
 
+      def mount_omniauth(opts = {})
+        path = opts[:to] || '/auth'
+
+        if mapping = opts[:for]
+          api = create_api_subclass('OmniAuthAPI', mapping)
+        else
+          api = GrapeTokenAuth::OmniAuthAPI
+        end
+
+        root_api_path = GrapeTokenAuth.configuration.omniauth_prefix
+        mount GrapeTokenAuth::RootOmniAuthAPI => root_api_path
+        mount api => path
+      end
+
       private
 
       def create_api_subclass(class_name, mapping)

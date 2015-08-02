@@ -31,4 +31,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'activerecord'
   spec.add_development_dependency 'database_cleaner'
   spec.add_development_dependency 'timecop'
+  spec.add_development_dependency 'omniauth'
+  spec.add_development_dependency 'omniauth-facebook'
 end
