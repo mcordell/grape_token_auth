@@ -44,4 +44,5 @@ class TestApp < Grape::API
   mount_sessions(to: '/auth', for: :user)
   mount_sessions(to: '/man_auth', for: :man)
   mount_token_validation(to: '/auth', for: :user)
+  mount_omniauth(to: '/auth', for: :user)
 end

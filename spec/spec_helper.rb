@@ -38,6 +38,10 @@ module Helpers
     @response = response
   end
 
+  def body
+    response.body if response
+  end
+
   attr_reader :response
 end
 
