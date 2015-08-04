@@ -191,7 +191,7 @@ module GrapeTokenAuth
           # ensure request is not treated as batch request
           age_token(existing_user, client_id)
 
-          delete '/auth.json', auth_headers
+          delete '/auth.json', {}, auth_headers
         end
 
         it 'is successful' do

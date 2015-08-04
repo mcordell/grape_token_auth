@@ -1,6 +1,6 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'grape_token_auth'
-require 'airborne'
+#require 'airborne'
 require 'grape'
 require 'pry'
 require 'active_record'
@@ -10,6 +10,8 @@ require_relative './database'
 require 'timecop'
 require 'warden'
 require 'omniauth'
+require 'omniauth-facebook'
+require 'rack/test'
 
 %w(database test_apps factories).each do |word|
   root_dir = File.expand_path("../#{word}", __FILE__)
@@ -18,7 +20,26 @@ end
 
 Database.establish_connection
 
+module Helpers
+  include Rack::Test::Methods
+  %i(get post put delete patch).each do |sym|
+    old_method = "_#{sym}".to_sym
+    alias_method old_method, sym
+
+    define_method(sym, ->(uri, params={}, env={}, &block) do
+      set_response(send(old_method, uri, params, env, &block))
+    end)
+  end
+
+  def set_response(response)
+    @response = response
+  end
+
+  attr_reader :response
+end
+
 RSpec.configure do |config|
+  config.include Helpers
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
@@ -31,13 +52,20 @@ RSpec.configure do |config|
   end
 end
 
-app = Rack::Builder.new do
-  use Warden::Manager do |manager|
-    manager.failure_app = GrapeTokenAuth::UnauthorizedMiddleware
-    manager.default_scope = :user
-  end
+def app
+  Rack::Builder.new do
+    use Rack::Session::Cookie, secret: 'blah'
+    use Warden::Manager do |manager|
+      manager.failure_app = GrapeTokenAuth::UnauthorizedMiddleware
+      manager.default_scope = :user
+    end
 
-  run TestApp
+    use OmniAuth::Builder do
+      provider :facebook
+    end
+
+    run TestApp
+  end
 end
 
 RSpec::Matchers.define :have_route do |route_method, route_path|
@@ -47,10 +75,6 @@ RSpec::Matchers.define :have_route do |route_method, route_path|
         route.route_method == route_method
     end.empty?
   end
-end
-
-Airborne.configure do |config|
-  config.rack_app = app
 end
 
 def age_token(user, client_id)
@@ -67,8 +91,8 @@ def expire_token(user, client_id)
   user.save!
 end
 
-def xhr(verb, path, params)
-  send(verb, path, params.merge('HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest'))
+def xhr(verb, path, params = {}, env = {})
+  send(verb, path, params, env.merge({ 'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest' }))
 end
 
 def auth_header_format(client_id)
@@ -79,4 +103,10 @@ def auth_header_format(client_id)
     'token-type' => 'Bearer',
     'uid' => a_kind_of(String)
   }
+end
+
+def get_via_redirect(path, headers = {})
+  get(path, headers)
+  follow_redirect! while response.redirect?
+  response
 end

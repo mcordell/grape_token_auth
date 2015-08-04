@@ -13,7 +13,7 @@ RSpec.describe 'Getting a protected route'  do
     before do
       age_token(resource, client_id)
 
-      get protected_route, auth_headers
+      get protected_route, {}, auth_headers
       @resp_token       = response.headers['access-token']
       @resp_client_id   = response.headers['client']
       @resp_expiry      = response.headers['expiry']
@@ -42,7 +42,7 @@ RSpec.describe 'Getting a protected route'  do
         # ensure that request is not treated as batch request
         age_token(resource, client_id)
 
-        get protected_route, auth_headers.merge('access-token' => @resp_token)
+        get protected_route, {}, auth_headers.merge('access-token' => @resp_token)
       end
 
       it 'should allow a new request to be made using new token' do
@@ -53,7 +53,7 @@ RSpec.describe 'Getting a protected route'  do
 
   describe 'failed request' do
     before do
-      get protected_route, auth_headers.merge('access-token' => 'bogus')
+      get protected_route, {}, auth_headers.merge('access-token' => 'bogus')
     end
 
     it 'should not return any auth headers' do
@@ -70,11 +70,11 @@ RSpec.describe 'Getting a protected route'  do
       before do
         age_token(resource, client_id)
 
-        get protected_route, auth_headers
+        get protected_route, {}, auth_headers
 
         @first_access_token = response.headers['access-token']
 
-        get protected_route, auth_headers
+        get protected_route, {}, auth_headers
 
         @second_access_token = response.headers['access-token']
       end
@@ -97,7 +97,7 @@ RSpec.describe 'Getting a protected route'  do
         resource.reload
         age_token(resource, client_id)
 
-        get protected_route, auth_headers
+        get protected_route, {}, auth_headers
 
         @first_access_token = response.headers['access-token']
         @first_response_status = response.status
@@ -106,7 +106,7 @@ RSpec.describe 'Getting a protected route'  do
         age_token(resource, client_id)
 
         # use expired auth header
-        get protected_route, auth_headers
+        get protected_route, {}, auth_headers
 
         @second_access_token = response.headers['access-token']
         @second_response_status = response.status
@@ -139,7 +139,7 @@ RSpec.describe 'Getting a protected route'  do
       end
 
       # no auth headers sent, testing that warden authenticates correctly.
-      get protected_route, {}
+      get protected_route, {}, {}
 
       @resp_token       = response.headers['access-token']
       @resp_client_id   = response.headers['client']

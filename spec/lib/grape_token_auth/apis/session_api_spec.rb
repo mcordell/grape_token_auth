@@ -85,7 +85,7 @@ module GrapeTokenAuth
       describe 'authenticated user sign out' do
         let(:auth_headers) { existing_user.create_new_auth_token }
         before do
-          xhr :delete, '/auth/sign_out', auth_headers
+          xhr :delete, '/auth/sign_out', {}, auth_headers
         end
 
         it 'logs out the user successfully' do

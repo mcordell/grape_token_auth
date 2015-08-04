@@ -11,7 +11,7 @@ RSpec.describe 'Getting a route' do
     before do
       age_token(resource, client_id)
 
-      get '/helper_test', auth_headers
+      get '/helper_test', {}, auth_headers
       @helper_response = JSON.parse(response.body)
     end
 
@@ -26,7 +26,7 @@ RSpec.describe 'Getting a route' do
 
   context 'that demonstrates the helper methods when not authenticated' do
     before do
-      get '/unauthenticated_helper_test', {}
+      get '/unauthenticated_helper_test', {}, {}
       @helper_response = JSON.parse(response.body)
     end
 
@@ -49,7 +49,7 @@ RSpec.describe 'Getting a route' do
     before do
       age_token(resource, client_id)
 
-      get '/helper_man_test', auth_headers
+      get '/helper_man_test', {}, auth_headers
       @helper_response = JSON.parse(response.body)
     end
 

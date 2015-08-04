@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'warden'
   spec.add_dependency 'bcrypt'
   spec.add_development_dependency 'rspec'
-  spec.add_development_dependency 'airborne'
+  spec.add_development_dependency 'rack-test'
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'pg'
   spec.add_development_dependency 'factory_girl'
