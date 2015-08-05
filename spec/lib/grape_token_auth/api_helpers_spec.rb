@@ -128,6 +128,14 @@ module GrapeTokenAuth
 
       describe '.mount_omniauth' do
         before do
+          # have to reset the API from file to get a clean test state
+          # this is hacky, but ok for now.
+          %i(OmniAuthAPI OmniAuthCallBackRouterAPI).each do |c|
+            GrapeTokenAuth.send(:remove_const, c) if GrapeTokenAuth.const_get(c)
+          end
+          path = '../../../../lib/grape_token_auth/apis/omniauth_api.rb'
+          load File.expand_path(path, __FILE__)
+
           GrapeTokenAuth.configure { |c| c.omniauth_prefix = '/omniauth' }
           class SomeAPI < Grape::API
             format :json
@@ -135,15 +143,7 @@ module GrapeTokenAuth
           end
         end
 
-        after do
-          # have to reset the API from file to get a clean test state
-          # this is hacky, but ok for now.
-          %i(SomeAPI OmniAuthAPI OmniAuthCallBackRouterAPI).each do |c|
-            GrapeTokenAuth.send(:remove_const, c)
-          end
-          path = '../../../../lib/grape_token_auth/apis/omniauth_api.rb'
-          load File.expand_path(path, __FILE__)
-        end
+        after { GrapeTokenAuth.send(:remove_const, :SomeAPI) }
 
         context 'with no arguments' do
           before do
