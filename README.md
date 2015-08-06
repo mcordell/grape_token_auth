@@ -1,4 +1,5 @@
 # GrapeTokenAuth
+[![Code Climate GPA][11]][12] [![Test Coverage][13]][14] [![Circle CI][15]][16]
 
 > __This gem is in active development__ and is not ready for production. See this
 issue milestone for reaching [functional parity with devise token auth][10] and
@@ -166,3 +167,9 @@ push git commits and tags, and push the `.gem` file to
 [8]: https://rubygems.org
 [9]: https://github.com/hassox/warden
 [10]: https://github.com/mcordell/grape_token_auth/milestones/Devise%20Token%20Auth%20Functional%20Parity
+[11]: https://codeclimate.com/github/mcordell/grape_token_auth/badges/gpa.svg
+[12]: https://codeclimate.com/github/mcordell/grape_token_auth
+[13]: https://codeclimate.com/github/mcordell/grape_token_auth/badges/coverage.svg
+[14]: https://codeclimate.com/github/mcordell/grape_token_auth/coverage
+[15]: https://circleci.com/gh/mcordell/grape_token_auth.svg?style=svg
+[16]: https://circleci.com/gh/mcordell/grape_token_auth

@@ -61,7 +61,7 @@ class Database
     end
 
     def config(env)
-      YAML.load_file(File.expand_path('../database.yml', __FILE__))[env]
+      YAML.load_file(File.expand_path('../../config/database.yml', __FILE__))[env]
     end
   end
 end

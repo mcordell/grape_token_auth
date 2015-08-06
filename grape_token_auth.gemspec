@@ -33,4 +33,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'timecop'
   spec.add_development_dependency 'omniauth'
   spec.add_development_dependency 'omniauth-facebook'
+  spec.add_development_dependency 'codeclimate-test-reporter'
 end
