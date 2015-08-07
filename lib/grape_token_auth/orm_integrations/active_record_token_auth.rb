@@ -29,28 +29,13 @@ module GrapeTokenAuth
       end
 
       def create_new_auth_token(client_id = nil)
-        client_id ||= SecureRandom.urlsafe_base64(nil, false)
-        last_token ||= nil
-        token        = SecureRandom.urlsafe_base64(nil, false)
-        token_hash   = BCrypt::Password.create(token)
-        expiry       = (Time.now + GrapeTokenAuth.token_lifespan).to_i
-
         self.tokens = {} if tokens.nil?
-
-        if tokens[client_id] && tokens[client_id]['token']
-          last_token = tokens[client_id]['token']
-        end
-
-        tokens[client_id] = {
-          token:      token_hash,
-          expiry:     expiry,
-          last_token: last_token,
-          updated_at: Time.now
-        }
-
+        token = Token.new(client_id)
+        last_token = tokens.fetch(client_id, {})['token']
+        tokens[token.client_id] = token.to_h.merge(last_token: last_token)
         self.save!
 
-        build_auth_header(token, client_id)
+        build_auth_header(token)
       end
 
       def valid_token?(token, client_id)
@@ -75,9 +60,11 @@ module GrapeTokenAuth
       end
 
       def extend_batch_buffer(token, client_id)
-        tokens[client_id][:updated_at] = Time.now
+        token_hash = tokens[client_id]
+        token_hash[:updated_at] = Time.now
+        expiry = token_hash[:expiry] || token_hash['expiry']
         save!
-        build_auth_header(token, client_id)
+        build_auth_header(Token.new(client_id, token, expiry))
       end
 
       private
@@ -117,11 +104,11 @@ module GrapeTokenAuth
         time > Time.now - GrapeTokenAuth.batch_request_buffer_throttle
       end
 
-      def build_auth_header(token, client_id)
+      def build_auth_header(token)
         {
-          'access-token' => token,
-          'expiry' => tokens[client_id][:expiry] || tokens[client_id]['expiry'],
-          'client' => client_id,
+          'access-token' => token.to_s,
+          'expiry' => token.expiry,
+          'client' => token.client_id,
           'token-type' => 'Bearer',
           'uid' => uid
         }
