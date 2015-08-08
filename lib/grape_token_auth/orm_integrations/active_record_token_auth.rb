@@ -15,7 +15,6 @@ module GrapeTokenAuth
                                          message: 'invalid email' }
         base.before_update :synchronize_email_and_uid
 
-
         class << base
           attr_accessor :case_insensitive_keys
         end

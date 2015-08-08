@@ -18,7 +18,25 @@ module GrapeTokenAuth
         context 'with a valid client id ' do
           before do
             expect(data).to receive(:client_id).at_least(:once)
-            .and_return(client_id)
+              .and_return(client_id)
+          end
+
+          context 'and it is set to not change headers on each request' do
+            before do
+              credentials = user.create_new_auth_token(client_id)
+              @token = credentials['access-token']
+              expect(data).to receive(:token).and_return(@token)
+              expect(GrapeTokenAuth)
+                .to receive(:change_headers_on_each_request).and_return false
+            end
+
+            it 'returns valid authentication header' do
+              expect(subject.headers).to match(auth_header_format(client_id))
+            end
+
+            it 'returns the same token in the headers' do
+              expect(subject.headers['access-token']).to eq @token
+            end
           end
 
           context 'and it is not a batch request' do

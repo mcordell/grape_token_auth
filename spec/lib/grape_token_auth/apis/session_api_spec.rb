@@ -201,6 +201,12 @@ module GrapeTokenAuth
       end
     end
 
+    describe '.resource_scope' do
+      it 'defaults to :user' do
+        expect(SessionsAPI.resource_scope).to eq :user
+      end
+    end
+
     skip 'User with only :database_authenticatable and \
 :registerable included' do
       before do

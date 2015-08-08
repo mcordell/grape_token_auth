@@ -12,8 +12,8 @@ module GrapeTokenAuth
   # Error when end-user has not configured any mappings
   class MappingsUndefinedError < StandardError
     def message
-      'GrapeTokenAuth mapping are undefined. Define your mappings within \
-       the GrapeTokenAuth configuration'
+      'GrapeTokenAuth mapping are undefined. Define your mappings' +
+        ' within the GrapeTokenAuth configuration'
     end
   end
 

@@ -50,6 +50,15 @@ module GrapeTokenAuth
           expect { subject.scope_to_class(:user) }
             .to raise_error MappingsUndefinedError
         end
+
+        it 'throws an error message warning the user to define mappings' do
+          begin
+            subject.scope_to_class(:user)
+          rescue Exception => e
+
+            expect(e.message).to eq('GrapeTokenAuth mapping are undefined. Define your mappings within the GrapeTokenAuth configuration')
+          end
+        end
       end
 
       context 'when the passed scope has been setup' do
