@@ -83,5 +83,51 @@ module GrapeTokenAuth
         expect(subject.omniauth_prefix).to eq '/omniauth'
       end
     end
+
+    describe '#ignore_default_serialization_blacklist' do
+      it 'defaults to false' do
+        expect(subject.ignore_default_serialization_blacklist).to eq false
+      end
+    end
+
+    describe '#additional_serialization_blacklist' do
+      it 'defaults to an empty Array' do
+        expect(subject.additional_serialization_blacklist).to eq []
+      end
+    end
+
+    describe '#serialization_blacklist' do
+      let(:default_blacklist) do
+        GrapeTokenAuth::Configuration::SERIALIZATION_BLACKLIST
+      end
+
+      context 'when ignore_default_serialization_blacklist is false' do
+        before { subject.ignore_default_serialization_blacklist = false }
+
+        it 'inculdes the default blacklist' do
+          expect(subject.serialization_blacklist).to include(*default_blacklist)
+        end
+      end
+
+      context 'when ignore_default_serialization_blacklist is false' do
+        before { subject.ignore_default_serialization_blacklist = true }
+
+        it 'does not include the default blacklist' do
+          expect(subject.serialization_blacklist)
+            .not_to include(*default_blacklist)
+        end
+      end
+
+      it 'includes all of the additional_serialization_blacklist' do
+        additional = [:cat, :dog, :color]
+        subject.additional_serialization_blacklist = additional
+        expect(subject.serialization_blacklist).to include(*additional)
+      end
+
+      it 'returns an array of symbols' do
+        subject.additional_serialization_blacklist = %w(cat dog color)
+        expect(subject.serialization_blacklist).to all(be_a(Symbol))
+      end
+    end
   end
 end
