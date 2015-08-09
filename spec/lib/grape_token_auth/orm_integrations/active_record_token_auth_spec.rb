@@ -218,6 +218,14 @@ module GrapeTokenAuth
           end
         end
       end
+
+      describe 'serialization' do
+        subject(:user) { FactoryGirl.create(:user) }
+
+        it 'does not include anything in the configuration blacklist' do
+          expect(user.as_json.keys.map(&:to_sym)).not_to include(*GrapeTokenAuth::Configuration::SERIALIZATION_BLACKLIST)
+        end
+      end
     end
   end
 end

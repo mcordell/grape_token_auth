@@ -66,6 +66,21 @@ module GrapeTokenAuth
         build_auth_header(Token.new(client_id, token, expiry))
       end
 
+      # Copied out of Devise. Excludes the serialization blacklist.
+      def serializable_hash(options = nil)
+        options ||= {}
+        options[:except] = Array(options[:except])
+
+        if options[:force_except]
+          options[:except].concat Array(options[:force_except])
+        else
+          blacklist = GrapeTokenAuth.configuration.serialization_blacklist
+          options[:except].concat blacklist
+        end
+
+        super(options)
+      end
+
       private
 
       def synchronize_email_and_uid
