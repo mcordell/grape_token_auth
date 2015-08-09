@@ -111,8 +111,7 @@ module GrapeTokenAuth
           end
         end
 
-        context 'when within the batch buffer window' do
-
+        skip 'when within the batch buffer window' do
         end
       end
 
@@ -200,22 +199,23 @@ module GrapeTokenAuth
           it { is_expected.to be_valid }
         end
       end
-    end
 
-    describe 'syncing of email and uid on update' do
-      let(:user) do
-        FactoryGirl.create(:user, uid: 'dude@apple.co', email: 'dude@apple.co')
-      end
-      let(:new_email) { 'guy@happy.com' }
-
-      context 'when the email changes' do
-        before do
-          user.update(email: new_email)
-          user.reload
+      describe 'syncing of email and uid on update' do
+        let(:user) do
+          FactoryGirl.create(:user, uid: 'dude@apple.co',
+                                    email: 'dude@apple.co')
         end
+        let(:new_email) { 'guy@happy.com' }
 
-        it 'changes the uid to match the email' do
-          expect(user.uid).to eq new_email
+        context 'when the email changes' do
+          before do
+            user.update(email: new_email)
+            user.reload
+          end
+
+          it 'changes the uid to match the email' do
+            expect(user.uid).to eq new_email
+          end
         end
       end
     end
