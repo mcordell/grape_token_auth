@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module GrapeTokenAuth
   RSpec.describe TokenAuthorizer do
-    let(:data) { instance_double('AuthorizerData') }
+    let(:data) { instance_double('GrapeTokenAuth::AuthorizerData') }
 
     before { allow(data).to receive(:exisiting_warden_user).with(:user) }
 
@@ -31,7 +31,7 @@ module GrapeTokenAuth
 
         context 'and authorizer data does not have valid prerequistes' do
           let(:data) do
-            instance_double('AuthorizerData',
+            instance_double('GrapeTokenAuth::AuthorizerData',
                             token_prerequisites_present?: false)
           end
 
@@ -42,7 +42,7 @@ module GrapeTokenAuth
 
         context 'and data has valid pre-requisites but an invalid uid' do
           let(:data) do
-            instance_double('AuthorizerData',
+            instance_double('GrapeTokenAuth::AuthorizerData',
                             token_prerequisites_present?: true, uid: 'bad')
           end
           before do
@@ -58,7 +58,7 @@ module GrapeTokenAuth
           context 'but an invalid token for the user and client id' do
             let(:user) { instance_double('User') }
             let(:data) do
-              instance_double('AuthorizerData',
+              instance_double('GrapeTokenAuth::AuthorizerData',
                               token_prerequisites_present?: true, uid: 'good',
                               client_id: 'client', token: 'bad')
             end
@@ -78,7 +78,7 @@ module GrapeTokenAuth
           context 'and a valid token for the user and client' do
             let(:user) { instance_double('User') }
             let(:data) do
-              instance_double('AuthorizerData',
+              instance_double('GrapeTokenAuth::AuthorizerData',
                               token_prerequisites_present?: true, uid: 'good',
                               client_id: 'client', token: 'good')
             end
