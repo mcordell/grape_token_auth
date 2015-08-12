@@ -31,27 +31,15 @@ module GrapeTokenAuth
 
     module ClassMethods
       def mount_registration(opts = {})
-        path = opts[:to] || '/'
-
-        if mapping = opts[:for]
-          api = create_api_subclass('RegistrationAPI', mapping)
-        else
-          api = GrapeTokenAuth::RegistrationAPI
-        end
-
-        mount api => path
+        mount_api('RegistrationAPI', opts)
       end
 
       def mount_sessions(opts = {})
-        path = opts[:to] || '/'
+        mount_api('SessionsAPI', opts)
+      end
 
-        if mapping = opts[:for]
-          api = create_api_subclass('SessionsAPI', mapping)
-        else
-          api = GrapeTokenAuth::SessionsAPI
-        end
-
-        mount api => path
+      def mount_token_validation(opts = {})
+        mount_api('TokenValidationAPI', opts)
       end
 
       def mount_omniauth(opts = {})
@@ -69,6 +57,18 @@ module GrapeTokenAuth
       end
 
       private
+
+      def mount_api(api_class_name, opts)
+        path = opts[:to] || '/'
+
+        if opts[:for]
+          api = create_api_subclass(api_class_name, opts[:for])
+        else
+          api = GrapeTokenAuth.const_get(api_class_name)
+        end
+
+        mount api => path
+      end
 
       def create_api_subclass(class_name, mapping)
         resource_class = GrapeTokenAuth.configuration.scope_to_class(mapping)

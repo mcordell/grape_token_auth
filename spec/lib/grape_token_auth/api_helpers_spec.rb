@@ -205,6 +205,54 @@ module GrapeTokenAuth
           end
         end
       end
+
+      describe '.mount_token_validation' do
+        before do
+          class SomeAPI < Grape::API
+            format :json
+            include GrapeTokenAuth::ApiHelpers
+          end
+        end
+
+        after { GrapeTokenAuth.send(:remove_const, :SomeAPI) }
+
+        context 'with no arguments' do
+          before do
+            SomeAPI.mount_token_validation
+          end
+
+          it 'mounts the user RegistrationAPI at root path' do
+            expect(SomeAPI).to have_route('GET', '/validate_token(.json)')
+          end
+        end
+
+        context 'when the params contains a to: key' do
+          before do
+            SomeAPI.mount_token_validation(to: '/auth')
+          end
+
+          it 'mounts the user RegistrationAPI to the path of the value' do
+            expect(SomeAPI).to have_route('GET', '/auth/validate_token(.json)')
+          end
+        end
+
+        context 'when the for param contains an undefined scope' do
+          it 'raises a ScopeUndefinedError' do
+            expect { SomeAPI.mount_token_validation(for: :cat) }
+              .to raise_error ScopeUndefinedError
+          end
+        end
+
+        context 'when the for param contains a valid scope' do
+          before do
+            SomeAPI.mount_token_validation(for: :dog)
+          end
+
+          it 'creates a subclass of the registrable API with that scope' do
+            expect(GrapeTokenAuth::DogRegistrationAPI.resource_scope).to eq :dog
+          end
+        end
+      end
     end
   end
 end
