@@ -43,8 +43,7 @@ module GrapeTokenAuth
       end
 
       def mount_omniauth(opts = {})
-        path = opts[:to] || '/auth'
-        prefix = GrapeTokenAuth.set_omniauth_path_prefix!
+        path = opts[:to] || '/'
 
         if mapping = opts[:for]
           api = create_api_subclass('OmniAuthAPI', mapping)
@@ -52,8 +51,14 @@ module GrapeTokenAuth
           api = GrapeTokenAuth::OmniAuthAPI
         end
 
-        mount GrapeTokenAuth::OmniAuthCallBackRouterAPI => prefix
         mount api => path
+      end
+
+      def mount_omniauth_callbacks(opts = {})
+        fail 'Oauth callback API is not scope specific. Only mount it once and do not pass a "for" option' if opts[:for]
+        fail 'Oauth callback API path is specificed in the configuration. Do not pass a "to" option' if opts[:to]
+        prefix = GrapeTokenAuth.set_omniauth_path_prefix!
+        mount GrapeTokenAuth::OmniAuthCallBackRouterAPI => prefix
       end
 
       private

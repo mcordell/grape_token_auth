@@ -5,6 +5,14 @@ module GrapeTokenAuth
         GrapeTokenAuth.configure do |c|
           c.mappings = { user: User, dog: Class.new }
         end
+
+        # have to reset the API from file to get a clean test state
+        # this is hacky, but ok for now.
+        %i(OmniAuthAPI OmniAuthCallBackRouterAPI).each do |c|
+          GrapeTokenAuth.send(:remove_const, c) if GrapeTokenAuth.const_get(c)
+        end
+        path = '../../../../lib/grape_token_auth/apis/omniauth_api.rb'
+        load File.expand_path(path, __FILE__)
       end
 
       describe 'upon inclusion in a class' do
@@ -126,16 +134,42 @@ module GrapeTokenAuth
         end
       end
 
+      describe '.mount_omniauth_callbacks' do
+        before do
+          GrapeTokenAuth.configure { |c| c.omniauth_prefix = '/omniauth' }
+          class SomeAPI < Grape::API
+            format :json
+            include GrapeTokenAuth::ApiHelpers
+          end
+        end
+
+        after { GrapeTokenAuth.send(:remove_const, :SomeAPI) }
+
+        context 'when passed a "for" param' do
+          it 'raises an error' do
+            expect { SomeAPI.mount_omniauth_callbacks(for: User) }
+              .to raise_error
+          end
+        end
+
+        context 'when passed a "to" param' do
+          it 'raises an error' do
+            expect { SomeAPI.mount_omniauth_callbacks(to: '/omniauth') }
+              .to raise_error
+          end
+        end
+
+        context 'without arguments' do
+          it "mounts the OmniauthAPI callback at the 'omniauth_prefix' path" do
+            SomeAPI.mount_omniauth_callbacks
+            expect(SomeAPI).to have_route('GET',
+                                          '/omniauth/:provider/callback(.json)')
+          end
+        end
+      end
+
       describe '.mount_omniauth' do
         before do
-          # have to reset the API from file to get a clean test state
-          # this is hacky, but ok for now.
-          %i(OmniAuthAPI OmniAuthCallBackRouterAPI).each do |c|
-            GrapeTokenAuth.send(:remove_const, c) if GrapeTokenAuth.const_get(c)
-          end
-          path = '../../../../lib/grape_token_auth/apis/omniauth_api.rb'
-          load File.expand_path(path, __FILE__)
-
           GrapeTokenAuth.configure { |c| c.omniauth_prefix = '/omniauth' }
           class SomeAPI < Grape::API
             format :json
@@ -150,32 +184,19 @@ module GrapeTokenAuth
             SomeAPI.mount_omniauth
           end
 
-          it "mounts the OmniauthAPI callback at the 'omniauth_prefix' path" do
+          it 'mounts the OmniauthAPI success path at /' do
             expect(SomeAPI).to have_route('GET',
-                                          '/omniauth/:provider/callback(.json)')
-          end
-
-          it 'mounts the OmniauthAPI success path at /auth' do
-            expect(SomeAPI).to have_route('GET',
-                                          '/auth/:provider/callback(.json)')
+                                          '/:provider/callback(.json)')
           end
 
           it 'mounts the OmniauthAPI failure path at /auth' do
-            expect(SomeAPI).to have_route('GET', '/auth/failure(.json)')
+            expect(SomeAPI).to have_route('GET', '/failure(.json)')
           end
         end
 
         context 'when the params contains a to: key' do
           before do
             SomeAPI.mount_omniauth(to: '/test')
-          end
-
-          after do
-          end
-
-          it 'mounts the OmniauthAPI callback at the root path' do
-            expect(SomeAPI).to have_route('GET',
-                                          '/omniauth/:provider/callback(.json)')
           end
 
           it 'mounts the OmniauthAPI success path under the path' do
