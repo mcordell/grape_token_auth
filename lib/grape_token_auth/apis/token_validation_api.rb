@@ -3,6 +3,13 @@ module GrapeTokenAuth
   module TokenValidationAPICore
     def self.included(base)
       base.get '/validate_token' do
+        token_authorizer = TokenAuthorizer.new(AuthorizerData.from_env(env))
+        resource = token_authorizer.find_resource(base.resource_scope)
+        if resource
+          status 200
+        else
+          throw(:warden, 'errors' => 'Invalid login credentials')
+        end
       end
     end
   end
