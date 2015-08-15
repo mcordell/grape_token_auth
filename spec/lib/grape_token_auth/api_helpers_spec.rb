@@ -148,14 +148,14 @@ module GrapeTokenAuth
         context 'when passed a "for" param' do
           it 'raises an error' do
             expect { SomeAPI.mount_omniauth_callbacks(for: User) }
-              .to raise_error
+              .to raise_error('Oauth callback API is not scope specific. Only mount it once and do not pass a "for" option')
           end
         end
 
         context 'when passed a "to" param' do
           it 'raises an error' do
             expect { SomeAPI.mount_omniauth_callbacks(to: '/omniauth') }
-              .to raise_error
+              .to raise_error('Oauth callback API path is specificed in the configuration. Do not pass a "to" option')
           end
         end
 
