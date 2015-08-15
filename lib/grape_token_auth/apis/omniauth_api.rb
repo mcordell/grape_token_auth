@@ -4,6 +4,27 @@ module GrapeTokenAuth
   # therefore have all of the functionality with a given resource (mapping).
   module OmniAuthAPICore
     def self.included(base)
+      base.helpers do
+        def auth_hash
+          @auth_hash ||= request.env['rack.session'].delete('gta.omniauth.auth')
+        end
+
+        def omniauth_params
+          @omniauth_params ||= request.env['rack.session']
+                               .delete('gta.omniauth.params')
+        end
+
+        def render_html(html)
+          env['api.format'] = :html
+          content_type 'text/html; charset=utf-8'
+          html
+        end
+
+        def sign_in_resource(resource, scope)
+          request.env['warden'].session_serializer.store(resource, scope)
+        end
+      end
+
       base.desc 'resource redirector for initial auth attempt' do
         detail <<-EOD
         Sets up the proper resource classes as a query parameter that is then
@@ -23,6 +44,19 @@ module GrapeTokenAuth
 
       base.desc 'OmniAuth success endpoint'
       base.get ':provider/callback' do
+        fail unless omniauth_params
+        fail unless auth_hash
+        resource_class = GrapeTokenAuth.configuration
+                         .scope_to_class(base.resource_scope)
+        success_html = OmniAuthSuccessHTML.build(resource_class,
+                                                 auth_hash,
+                                                 omniauth_params)
+        if success_html.persist_oauth_attributes!
+          sign_in_resource(success_html.resource, base.resource_scope)
+          render_html(success_html.render_html)
+        else
+          status 500
+        end
       end
 
       base.get '/failure' do

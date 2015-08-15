@@ -121,7 +121,7 @@ def auth_header_format(client_id)
 end
 
 def get_via_redirect(path, headers = {})
-  get(path, headers)
-  follow_redirect! while response.redirect?
-  response
+  response = _get(path, headers)
+  response = follow_redirect! while response.redirect?
+  @response = response
 end
