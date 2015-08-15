@@ -160,10 +160,15 @@ module GrapeTokenAuth
         end
 
         context 'without arguments' do
+          before { SomeAPI.mount_omniauth_callbacks }
+
           it "mounts the OmniauthAPI callback at the 'omniauth_prefix' path" do
-            SomeAPI.mount_omniauth_callbacks
             expect(SomeAPI).to have_route('GET',
                                           '/omniauth/:provider/callback(.json)')
+          end
+
+          it 'mounts the OmniauthAPI failure path at /omniauth/failure' do
+            expect(SomeAPI).to have_route('GET', '/omniauth/failure(.json)')
           end
         end
       end
@@ -188,10 +193,6 @@ module GrapeTokenAuth
             expect(SomeAPI).to have_route('GET',
                                           '/:provider/callback(.json)')
           end
-
-          it 'mounts the OmniauthAPI failure path at /auth' do
-            expect(SomeAPI).to have_route('GET', '/failure(.json)')
-          end
         end
 
         context 'when the params contains a to: key' do
@@ -202,10 +203,6 @@ module GrapeTokenAuth
           it 'mounts the OmniauthAPI success path under the path' do
             route = '/test/:provider/callback(.json)'
             expect(SomeAPI).to have_route('GET', route)
-          end
-
-          it 'mounts the OmniauthAPI failure path under the path and /auth' do
-            expect(SomeAPI).to have_route('GET', '/test/failure(.json)')
           end
         end
 

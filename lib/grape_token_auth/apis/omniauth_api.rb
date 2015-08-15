@@ -58,10 +58,6 @@ module GrapeTokenAuth
           status 500
         end
       end
-
-      base.get '/failure' do
-        # failure
-      end
     end
   end
 
@@ -114,6 +110,12 @@ module GrapeTokenAuth
       session['gta.omniauth.params'] = request.env['omniauth.params']
 
       redirect redirect_route_from_api(api, params[:provider])
+    end
+
+    get '/failure' do
+      env['api.format'] = :html
+      content_type 'text/html; charset=utf-8'
+      OmniAuthFailureHTML.new(params[:message] || params['message']).render_html
     end
   end
 end
