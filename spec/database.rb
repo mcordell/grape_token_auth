@@ -35,6 +35,7 @@ class Database
       connection.drop_table(name) if connection.table_exists?(name)
       connection.create_table name.to_s, force: :cascade do |t|
         t.string   'email',                  default: '', null: false
+        t.string   'image',                  default: '', null: false
         t.string   'encrypted_password',     default: '', null: false
         t.string   'reset_password_token'
         t.datetime 'reset_password_sent_at'
@@ -51,6 +52,8 @@ class Database
         t.string   'provider',               default: '', null: false
         t.string   'uid',                    default: '', null: false
         t.string   'nickname',               default: '', null: false
+        t.string   'name',                   default: '', null: false
+        t.string   'favorite_color',         default: '', null: false
         t.text     'tokens'
       end
     end
