@@ -6,10 +6,6 @@ module GrapeTokenAuth
           token_authorizer = TokenAuthorizer.new(AuthorizerData.from_env(env))
           token_authorizer.find_resource(mapping)
         end
-
-        def resource_class(mapping)
-          GrapeTokenAuth.configuration.scope_to_class(mapping)
-        end
       end
 
       base.post '/sign_in' do

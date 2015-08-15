@@ -38,6 +38,10 @@ module Helpers
     @response = response
   end
 
+  def body
+    response.body if response
+  end
+
   attr_reader :response
 end
 
@@ -52,6 +56,14 @@ RSpec.configure do |config|
     DatabaseCleaner.cleaning do
       example.run
     end
+  end
+
+  config.mock_with :rspec do |mocks|
+    # This option should be set when all dependencies are being loaded
+    # before a spec run, as is the case in a typical spec helper. It will
+    # cause any verifying double instantiation for a class that does not
+    # exist to raise, protecting against incorrectly spelt names.
+    mocks.verify_doubled_constant_names = true
   end
 end
 
@@ -109,7 +121,7 @@ def auth_header_format(client_id)
 end
 
 def get_via_redirect(path, headers = {})
-  get(path, headers)
-  follow_redirect! while response.redirect?
-  response
+  response = _get(path, headers)
+  response = follow_redirect! while response.redirect?
+  @response = response
 end

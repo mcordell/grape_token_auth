@@ -3,7 +3,7 @@ require 'spec_helper'
 module GrapeTokenAuth
   RSpec.describe AuthenticationHeader do
     let(:scope)     { :user }
-    let(:data)      { instance_double('AuthorizerData') }
+    let(:data)      { instance_double('GrapeTokenAuth::AuthorizerData') }
     let(:user)      { FactoryGirl.create(:user) }
     let(:client_id) { 'clientid' }
     subject { AuthenticationHeader.new(data, Time.now) }
