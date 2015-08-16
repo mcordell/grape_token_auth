@@ -7,10 +7,12 @@ module GrapeTokenAuth
     end
 
     before do
-      OmniAuth.config.test_mode = true
       GrapeTokenAuth.configure do |config|
         config.mappings = { user: User, man: Man }
+        config.omniauth_prefix = '/omniauth'
       end
+      GrapeTokenAuth.set_omniauth_path_prefix!
+      OmniAuth.config.test_mode = true
     end
 
     describe 'OmniAuth success' do

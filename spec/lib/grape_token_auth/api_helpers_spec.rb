@@ -6,13 +6,6 @@ module GrapeTokenAuth
           c.mappings = { user: User, dog: Class.new }
         end
 
-        # have to reset the API from file to get a clean test state
-        # this is hacky, but ok for now.
-        %i(OmniAuthAPI OmniAuthCallBackRouterAPI).each do |c|
-          GrapeTokenAuth.send(:remove_const, c) if GrapeTokenAuth.const_get(c)
-        end
-        path = '../../../../lib/grape_token_auth/apis/omniauth_api.rb'
-        load File.expand_path(path, __FILE__)
       end
 
       describe 'upon inclusion in a class' do
@@ -147,7 +140,7 @@ module GrapeTokenAuth
 
         context 'when passed a "for" param' do
           it 'raises an error' do
-            expect { SomeAPI.mount_omniauth_callbacks(for: User) }
+            expect { SomeAPI.mount_omniauth_callbacks(for: :user) }
               .to raise_error('Oauth callback API is not scope specific. Only mount it once and do not pass a "for" option')
           end
         end
@@ -160,15 +153,15 @@ module GrapeTokenAuth
         end
 
         context 'without arguments' do
-          before { SomeAPI.mount_omniauth_callbacks }
-
           it "mounts the OmniauthAPI callback at the 'omniauth_prefix' path" do
-            expect(SomeAPI).to have_route('GET',
+            # yeah we arent testing SomeApi here because we cant call
+            # mount_omniauth_callbacks twice.
+            expect(TestApp).to have_route('GET',
                                           '/omniauth/:provider/callback(.json)')
           end
 
           it 'mounts the OmniauthAPI failure path at /omniauth/failure' do
-            expect(SomeAPI).to have_route('GET', '/omniauth/failure(.json)')
+            expect(TestApp).to have_route('GET', '/omniauth/failure(.json)')
           end
         end
       end

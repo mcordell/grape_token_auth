@@ -1,9 +1,10 @@
 require "codeclimate-test-reporter"
-CodeClimate::TestReporter.start
+CodeClimate::TestReporter.start do
+  add_filter '/spec/'
+end
 
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'grape_token_auth'
-#require 'airborne'
 require 'grape'
 require 'pry'
 require 'active_record'
