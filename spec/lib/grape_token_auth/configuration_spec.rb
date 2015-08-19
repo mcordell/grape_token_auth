@@ -129,5 +129,11 @@ module GrapeTokenAuth
         expect(subject.serialization_blacklist).to all(be_a(Symbol))
       end
     end
+
+    describe '#default_password_reset_url' do
+      it 'defaults to nil' do
+        expect(subject.default_password_reset_url).to be_nil
+      end
+    end
   end
 end
