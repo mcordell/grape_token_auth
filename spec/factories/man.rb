@@ -5,5 +5,9 @@ FactoryGirl.define do
     provider 'email'
     password 'password'
     password_confirmation 'password'
+
+    trait :confirmed do
+      # confirmable stub
+    end
   end
 end

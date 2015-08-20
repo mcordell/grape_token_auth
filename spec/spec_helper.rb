@@ -108,7 +108,12 @@ def expire_token(user, client_id)
 end
 
 def xhr(verb, path, params = {}, env = {})
-  send(verb, path, params, env.merge({ 'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest' }))
+  set_response(send(verb,
+                    path,
+                    params,
+                    env.merge('HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest')
+                   )
+              )
 end
 
 def auth_header_format(client_id)
