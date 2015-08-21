@@ -13,6 +13,12 @@ module GrapeTokenAuth
       end
       GrapeTokenAuth.set_omniauth_path_prefix!
       OmniAuth.config.test_mode = true
+      @previous_logger = OmniAuth.config.logger
+      OmniAuth.config.logger = Logger.new('/dev/null')
+    end
+
+    after do
+      OmniAuth.config.logger = @previous_logger
     end
 
     describe 'OmniAuth success' do
