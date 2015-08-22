@@ -35,7 +35,8 @@ module GrapeTokenAuth
                   :omniauth_prefix,
                   :additional_serialization_blacklist,
                   :ignore_default_serialization_blacklist,
-                  :default_password_reset_url
+                  :default_password_reset_url,
+                  :smtp_configuration
 
     def initialize
       @token_lifespan                         = 2.weeks
@@ -47,6 +48,7 @@ module GrapeTokenAuth
       @additional_serialization_blacklist     = []
       @ignore_default_serialization_blacklist = false
       @default_password_reset_url             = nil
+      @smtp_configuration                     = {}
     end
 
     def serialization_blacklist

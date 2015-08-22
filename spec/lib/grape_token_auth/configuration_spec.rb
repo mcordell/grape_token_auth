@@ -135,5 +135,11 @@ module GrapeTokenAuth
         expect(subject.default_password_reset_url).to be_nil
       end
     end
+
+    describe '#smtp_configuration' do
+      it 'defaults to an empty hash' do
+        expect(subject.smtp_configuration).to eq({})
+      end
+    end
   end
 end
