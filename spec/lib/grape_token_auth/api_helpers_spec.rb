@@ -5,7 +5,6 @@ module GrapeTokenAuth
         GrapeTokenAuth.configure do |c|
           c.mappings = { user: User, dog: Class.new }
         end
-
       end
 
       describe 'upon inclusion in a class' do

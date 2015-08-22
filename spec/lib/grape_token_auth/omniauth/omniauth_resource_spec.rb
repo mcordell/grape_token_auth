@@ -105,7 +105,7 @@ module GrapeTokenAuth
           let(:name)      { 'chuck testa' }
           let(:auth_hash) do
             { 'info' => { nickname: nickname, email: email,
-              image: image, name: name }
+                          image: image, name: name }
             }
           end
 

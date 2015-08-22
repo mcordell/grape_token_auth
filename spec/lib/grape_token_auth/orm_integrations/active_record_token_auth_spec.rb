@@ -223,7 +223,9 @@ module GrapeTokenAuth
         subject(:user) { FactoryGirl.create(:user) }
 
         it 'does not include anything in the configuration blacklist' do
-          expect(user.as_json.keys.map(&:to_sym)).not_to include(*GrapeTokenAuth::Configuration::SERIALIZATION_BLACKLIST)
+          blacklist = GrapeTokenAuth::Configuration::SERIALIZATION_BLACKLIST
+          expect(user.as_json.keys.map(&:to_sym))
+            .not_to include(*blacklist)
         end
       end
     end

@@ -4,7 +4,7 @@ module GrapeTokenAuth
       let(:redirect_url) { 'http://ng-token-auth.dev' }
       let(:resource) { FactoryGirl.create(:user, :confirmed) }
       let(:mail) do
-        # TODO get sent mail somehow
+        # TODO: get sent mail somehow
       end
 
       describe 'request password reset' do
@@ -237,7 +237,7 @@ module GrapeTokenAuth
 
     describe 'password reset on alternate user class' do
       let(:mail) do
-        # TODO figure out how to get email
+        # TODO: figure out how to get email
       end
       let(:redirect_url) { 'http://ng-token-auth.dev' }
       let(:resource) { create(:man, :confirmed) }
