@@ -1,4 +1,5 @@
-require "codeclimate-test-reporter"
+require 'codeclimate-test-reporter'
+
 CodeClimate::TestReporter.start do
   add_filter '/spec/'
 end
@@ -16,6 +17,7 @@ require 'warden'
 require 'omniauth'
 require 'omniauth-facebook'
 require 'rack/test'
+require 'support/helpers'
 
 %w(database test_apps factories).each do |word|
   root_dir = File.expand_path("../#{word}", __FILE__)
@@ -24,30 +26,8 @@ end
 
 Database.establish_connection
 
-module Helpers
-  include Rack::Test::Methods
-  %i(get post put delete patch).each do |sym|
-    old_method = "_#{sym}".to_sym
-    alias_method old_method, sym
-
-    define_method(sym, ->(uri, params={}, env={}, &block) do
-      set_response(send(old_method, uri, params, env, &block))
-    end)
-  end
-
-  def set_response(response)
-    @response = response
-  end
-
-  def body
-    response.body if response
-  end
-
-  attr_reader :response
-end
-
 RSpec.configure do |config|
-  config.include Helpers
+  config.include GrapeTokenAuth::SpecHelpers
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
@@ -60,14 +40,11 @@ RSpec.configure do |config|
   end
 
   config.mock_with :rspec do |mocks|
-    # This option should be set when all dependencies are being loaded
-    # before a spec run, as is the case in a typical spec helper. It will
-    # cause any verifying double instantiation for a class that does not
-    # exist to raise, protecting against incorrectly spelt names.
     mocks.verify_doubled_constant_names = true
   end
 end
 
+# rubocop:disable Metrics/MethodLength
 def app
   Rack::Builder.new do
     use Rack::Session::Cookie, secret: 'blah'
@@ -83,6 +60,7 @@ def app
     run TestApp
   end
 end
+# rubocop:enable Metrics/MethodLength
 
 RSpec::Matchers.define :have_route do |route_method, route_path|
   match do |grape_api|
@@ -102,7 +80,7 @@ end
 
 def expire_token(user, client_id)
   age = Time.now -
-    (GrapeTokenAuth.configuration.token_lifespan.to_f + 10.seconds)
+        (GrapeTokenAuth.configuration.token_lifespan.to_f + 10.seconds)
   user.tokens[client_id]['expiry'] = age.to_i
   user.save!
 end
