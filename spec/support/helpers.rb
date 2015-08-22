@@ -3,6 +3,7 @@ module GrapeTokenAuth
   # sugary stuff aroung rack-test to be similar to airborne
   module SpecHelpers
     include Rack::Test::Methods
+
     %i(get post put delete patch).each do |sym|
       old_method = "_#{sym}".to_sym
       alias_method old_method, sym

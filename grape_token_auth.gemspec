@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'grape', '> 0.9.0'
   spec.add_dependency 'warden'
   spec.add_dependency 'bcrypt'
+  spec.add_dependency 'mail'
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'rack-test'
   spec.add_development_dependency 'pry'

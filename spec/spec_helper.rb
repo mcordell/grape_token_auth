@@ -18,6 +18,7 @@ require 'omniauth'
 require 'omniauth-facebook'
 require 'rack/test'
 require 'support/helpers'
+require 'mail'
 
 %w(database test_apps factories).each do |word|
   root_dir = File.expand_path("../#{word}", __FILE__)
@@ -26,8 +27,15 @@ end
 
 Database.establish_connection
 
+# Configure mail gem to work in test mode
+Mail.defaults do
+  delivery_method :test
+end
+
 RSpec.configure do |config|
   config.include GrapeTokenAuth::SpecHelpers
+  config.include Mail::Matchers
+
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
