@@ -207,8 +207,30 @@ module GrapeTokenAuth
       end
     end
 
-    skip 'User with only :database_authenticatable and \
-:registerable included' do
+    context 'unconfirmed user', confirmable: true, skip: true do
+      describe 'loggin in' do
+        let(:unconfirmed_user) { create(:user, :unconfirmed) }
+        before do
+          xhr :post, :create, email: unconfirmed_user.email,
+                              password: 'secret123'
+        end
+
+        it 'fails with 401' do
+          expect(response.status).to eq 401
+        end
+
+        it 'has an error prompting the user to confirm' do
+          error_message = 'A confirmation email was sent to your account at ' +
+                          "#{unconfirmed_user.email}. You must follow the " +
+                          'instructions in the email before your account can be ' +
+                          'activated'
+
+          expect(data['errors']).to eq [error_message]
+        end
+      end
+    end
+
+    skip 'User with only :database_authenticatable and :registerable included', modules: true do
       before do
         # setup email user mapping
       end
