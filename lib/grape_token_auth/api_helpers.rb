@@ -42,6 +42,11 @@ module GrapeTokenAuth
         mount_api('TokenValidationAPI', opts)
       end
 
+      def mount_password_reset(opts = {})
+        opts[:to] = opts[:to].to_s.chomp('/') + '/password'
+        mount_api('PasswordAPI', opts)
+      end
+
       def mount_omniauth(opts = {})
         path = opts[:to] || '/'
 

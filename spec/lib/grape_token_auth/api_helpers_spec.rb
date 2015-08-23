@@ -3,7 +3,7 @@ module GrapeTokenAuth
     context 'with mappings defined' do
       before do
         GrapeTokenAuth.configure do |c|
-          c.mappings = { user: User, dog: Class.new }
+          c.mappings = { user: User, dog: Class.new, mang: Class.new }
         end
       end
 
@@ -122,6 +122,54 @@ module GrapeTokenAuth
 
           it 'creates a subclass of the registrable API with that scope' do
             expect(GrapeTokenAuth::DogRegistrationAPI.resource_scope).to eq :dog
+          end
+        end
+      end
+
+      describe '.mount_password_reset' do
+        before do
+          class SomeAPI < Grape::API
+            format :json
+            include GrapeTokenAuth::ApiHelpers
+          end
+        end
+
+        after { GrapeTokenAuth.send(:remove_const, :SomeAPI) }
+
+        context 'with no arguments' do
+          before do
+            SomeAPI.mount_password_reset
+          end
+
+          it 'mounts the user PasswordAPI at root path' do
+            expect(SomeAPI).to have_route('POST', '/password(.json)')
+          end
+        end
+
+        context 'when the params contains a to: key' do
+          before do
+            SomeAPI.mount_password_reset(to: '/auth', for: :mang)
+          end
+
+          it 'mounts the user PasswordAPI to the path of the value' do
+            expect(SomeAPI).to have_route('POST', '/auth/password(.json)')
+          end
+        end
+
+        context 'when the for param contains an undefined scope' do
+          it 'raises a ScopeUndefinedError' do
+            expect { SomeAPI.mount_password_reset(for: :cat) }
+              .to raise_error ScopeUndefinedError
+          end
+        end
+
+        context 'when the for param contains a valid scope' do
+          before do
+            SomeAPI.mount_password_reset(for: :dog)
+          end
+
+          it 'creates a subclass of the registrable API with that scope' do
+            expect(GrapeTokenAuth::DogPasswordAPI.resource_scope).to eq :dog
           end
         end
       end
