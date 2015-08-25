@@ -19,4 +19,11 @@ module GrapeTokenAuth
 
   class Unauthorized < StandardError
   end
+
+  class SecretNotSet < StandardError
+    def message
+      'GrapeTokenAuth secret is not set, define your secret with a' +
+        ' safe random key in the GrapeTokenAuth configuration'
+    end
+  end
 end

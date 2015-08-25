@@ -134,5 +134,26 @@ module GrapeTokenAuth
         expect(subject.smtp_configuration).to eq({})
       end
     end
+
+    describe '#secret' do
+      it 'defaults to nil' do
+        expect(subject.secret).to be_nil
+      end
+    end
+
+    describe '#key_generator' do
+      context 'when secret has not been set' do
+        before { subject.secret = nil }
+
+        it 'raises an error' do
+          expect { subject.key_generator }.to raise_error(SecretNotSet)
+        end
+      end
+
+      it 'returns a CachingKeyGenerator' do
+        subject.secret = 'blahblahblah'
+        expect(subject.key_generator).to be_a CachingKeyGenerator
+      end
+    end
   end
 end
