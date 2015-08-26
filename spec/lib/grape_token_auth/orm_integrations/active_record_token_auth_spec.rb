@@ -228,6 +228,24 @@ module GrapeTokenAuth
             .not_to include(*blacklist)
         end
       end
+
+      describe '.exists_in_column?' do
+        context 'when supplied a column where a value already exists' do
+          let!(:user) { FactoryGirl.create(:user, email: 'blah@example.com') }
+
+          it 'returns true' do
+            expect(User.exists_in_column?(:email, 'blah@example.com'))
+              .to be true
+          end
+        end
+
+        context 'when supplied a column where the value does not exist' do
+          it 'returns false' do
+            expect(User.exists_in_column?(:email, 'doesntexist@example.com'))
+              .to be false
+          end
+        end
+      end
     end
   end
 end

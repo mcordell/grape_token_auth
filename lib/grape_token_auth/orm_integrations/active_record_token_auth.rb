@@ -16,6 +16,10 @@ module GrapeTokenAuth
         base.before_update :synchronize_email_and_uid
 
         class << base
+          def exists_in_column?(column, value)
+            where(column => value).count > 0
+          end
+
           attr_accessor :case_insensitive_keys
         end
       end
