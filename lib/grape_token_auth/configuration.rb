@@ -56,7 +56,7 @@ module GrapeTokenAuth
     end
 
     def key_generator
-      raise SecretNotSet unless secret
+      fail SecretNotSet unless secret
       @key_generator ||= CachingKeyGenerator.new(KeyGenerator.new(secret))
     end
 
