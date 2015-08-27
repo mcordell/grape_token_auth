@@ -37,7 +37,8 @@ module GrapeTokenAuth
                   :ignore_default_serialization_blacklist,
                   :default_password_reset_url,
                   :smtp_configuration,
-                  :secret
+                  :secret,
+                  :digest
 
     def initialize
       @token_lifespan                         = 2.weeks
@@ -51,6 +52,7 @@ module GrapeTokenAuth
       @default_password_reset_url             = nil
       @smtp_configuration                     = {}
       @secret                                 = nil
+      @digest                                 = 'SHA256'
     end
 
     def key_generator

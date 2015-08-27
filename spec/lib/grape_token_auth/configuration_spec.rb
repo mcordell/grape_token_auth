@@ -141,6 +141,12 @@ module GrapeTokenAuth
       end
     end
 
+    describe '#digest' do
+      it 'defaults to SHA256' do
+        expect(subject.digest).to eq 'SHA256'
+      end
+    end
+
     describe '#key_generator' do
       context 'when secret has not been set' do
         before { subject.secret = nil }
