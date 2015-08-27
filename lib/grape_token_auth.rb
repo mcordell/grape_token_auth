@@ -30,6 +30,9 @@ module GrapeTokenAuth
       ::OmniAuth.config.path_prefix = configuration.omniauth_prefix
     end
 
+    def send_notification(notification_type, opts)
+    end
+
     private
 
     def add_auth_strategy

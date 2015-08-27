@@ -229,6 +229,46 @@ module GrapeTokenAuth
         end
       end
 
+      describe '#send_reset_password_instructions' do
+        let(:token)    { 'thistokenwasgenerated' }
+        let(:encoded)  { 'thisisencoded' }
+        let!(:user)    { FactoryGirl.create(:user) }
+        let(:opts)     { {} }
+
+        before do
+          Timecop.freeze
+          allow(LookupToken).to receive(:generate).and_return([token, encoded])
+          @returned = user.send_reset_password_instructions(opts)
+          user.reload
+        end
+
+        after  { Timecop.return }
+
+        it 'sets the reset_password_token encoded token' do
+          expect(user.reset_password_token).to eq encoded
+        end
+
+        it 'returns the token' do
+          expect(@returned).to eq token
+        end
+
+        it 'sets the reset_password_sent_at to now' do
+          expect(user.reset_password_sent_at).to eq Time.now
+        end
+
+        describe 'email to be sent' do
+          it 'sends an email with the token and the config set to default' do
+            notification_opts = {
+              token: token,
+              client_config: 'default'
+            }
+            expect(GrapeTokenAuth).to receive(:send_notification)
+              .with(:reset_password_instructions, notification_opts)
+            user.send_reset_password_instructions({})
+          end
+        end
+      end
+
       describe '.exists_in_column?' do
         context 'when supplied a column where a value already exists' do
           let!(:user) { FactoryGirl.create(:user, email: 'blah@example.com') }

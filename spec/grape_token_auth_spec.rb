@@ -45,6 +45,12 @@ describe GrapeTokenAuth do
     end
   end
 
+  describe '.send_notification' do
+    context 'with a notification type and opts' do
+      xit 'defers to a mailer class'
+    end
+  end
+
   describe '#setup!' do
     context 'when passed a block' do
       before do

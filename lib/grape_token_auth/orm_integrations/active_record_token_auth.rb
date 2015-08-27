@@ -85,7 +85,29 @@ module GrapeTokenAuth
         super(options)
       end
 
+      def send_reset_password_instructions(opts)
+        token = set_reset_password_token
+
+        opts ||= {}
+        opts[:client_config] ||= 'default'
+        opts[:token] = token
+
+        GrapeTokenAuth.send_notification(:reset_password_instructions, opts)
+
+        token
+      end
+
       private
+
+      def set_reset_password_token
+        token, enc = GrapeTokenAuth::LookupToken.generate(self.class,
+                                                          :reset_password_token)
+
+        self.reset_password_token   = enc
+        self.reset_password_sent_at = Time.now.utc
+        save(validate: false)
+        token
+      end
 
       def synchronize_email_and_uid
         self.uid = email
