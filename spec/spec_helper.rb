@@ -79,6 +79,12 @@ RSpec::Matchers.define :have_route do |route_method, route_path|
   end
 end
 
+RSpec::Matchers.define :be_url_safe do
+  match do |string|
+    string.match(/^[a-zA-Z0-9_-]*$/)
+  end
+end
+
 def age_token(user, client_id)
   age = Time.now -
         (GrapeTokenAuth.batch_request_buffer_throttle + 10.seconds)

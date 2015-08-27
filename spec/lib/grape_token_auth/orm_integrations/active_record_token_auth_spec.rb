@@ -71,7 +71,7 @@ module GrapeTokenAuth
         context 'when not passed a client_id' do
           it 'returns a URL safe randomly generated client_id' do
             returned = subject.create_new_auth_token
-            expect(returned['client']).to match(/^[a-zA-Z0-9_-]*$/)
+            expect(returned['client']).to be_url_safe
           end
         end
       end
