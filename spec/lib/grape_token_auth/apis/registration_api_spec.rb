@@ -49,8 +49,7 @@ module GrapeTokenAuth
         expect(User.count).to eq user_count + 1
       end
 
-      it 'user should not be confirmed' do
-        pending 'Solution to the confirmations problem'
+      it 'user should not be confirmed', skip: true, confirmable: true do
         expect(last_user.confirmed_at).to be nil
       end
 
@@ -331,6 +330,109 @@ module GrapeTokenAuth
               .not_to eq new_operating_thetan
           end
         end
+      end
+    end
+
+    describe 'Ouath user has existing email' do
+      let(:existing_user) { FactoryGirl.create(:user, provider: 'omniauth') }
+      let!(:user_count) { User.count }
+
+      before do
+        post '/auth', email: existing_user.email,
+                      password: 'secret123',
+                      password_confirmation: 'secret123',
+                      confirm_success_url: 'http://success.com'
+      end
+
+      it 'request should be successful' do
+        expect(response.status).to eq 200
+      end
+
+      it 'user should have been created' do
+        expect(User.count).to eq user_count + 1
+      end
+
+      it 'new user data should be returned as json' do
+        expect(data['data']['email']).not_to be_nil
+      end
+    end
+
+    describe 'Excluded :registrations module', skip: true, module: true do
+      # This should probably move to the mounting methods
+      it 'UnregisterableUser should not be able to access registration routes' do
+        expect do
+          post '/unregisterable_user_auth',
+               email: Faker::Internet.email,
+               password: 'secret123',
+               password_confirmation: 'secret123',
+               confirm_success_url: Faker::Internet.url
+        end.to raise_error # unclear what this error should be, if any
+      end
+    end
+
+    describe 'Skipped confirmation', confirmable: true, skip: true do
+      before(:all) do
+        User.set_callback(:create, :before, :skip_confirmation!)
+      end
+
+      after(:all) do
+        User.skip_callback(:create, :before, :skip_confirmation!)
+      end
+
+      let(:resource) { User.last }
+
+      before do
+        post '/auth', email: Faker::Internet.email,
+                      password: 'secret123',
+                      password_confirmation: 'secret123',
+                      confirm_success_url: Faker::Internet.url
+      end
+
+      it 'user was created' do
+        expect(resource).not_to be_nil
+      end
+
+      it 'user was confirmed' do
+        expect(resource).to be_confirmed
+      end
+
+      it 'auth headers were returned in response' do
+        %w(access-token token-type client expiry uid).each do |key|
+          expect(response.headers[key]).not_to be_nil
+        end
+      end
+
+      it 'response token is valid' do
+        token     = response.headers['access-token']
+        client_id = response.headers['client']
+        expect(resource.valid_token?(token, client_id)).not_to be_true
+      end
+    end
+
+    describe 'User with only :database_authenticatable and :registerable included', module: true, skip: true do
+      let!(:mails_sent) do
+        # TODO: get mail count
+      end
+      let!(:user_count) { User.count }
+      before do
+        post '/only_email_auth', email: Faker::Internet.email,
+                                 password: 'secret123',
+                                 password_confirmation: 'secret123',
+                                 confirm_success_url: Faker::Internet.url,
+                                 unpermitted_param: '(x_x)'
+      end
+
+      it 'user was created' do
+        expect(User.count).to eq user_count + 1
+      end
+
+      it 'email confirmation was not sent' do
+        # TODO: get mail count
+        expect().to eq mails_sent
+      end
+
+      it 'user is confirmed' do
+        expect(User.last).to be_confirmed
       end
     end
   end
