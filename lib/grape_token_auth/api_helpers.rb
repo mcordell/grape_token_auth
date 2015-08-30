@@ -38,6 +38,11 @@ module GrapeTokenAuth
         mount_api('SessionsAPI', opts)
       end
 
+      def mount_confirmation(opts = {})
+        opts[:to] = opts[:to].to_s.chomp('/') + '/confirmation'
+        mount_api('ConfirmationAPI', opts)
+      end
+
       def mount_token_validation(opts = {})
         mount_api('TokenValidationAPI', opts)
       end

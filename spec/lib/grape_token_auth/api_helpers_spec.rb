@@ -311,6 +311,54 @@ module GrapeTokenAuth
           end
         end
       end
+
+      describe '.mount_confirmation' do
+        before do
+          class SomeAPI < Grape::API
+            format :json
+            include GrapeTokenAuth::ApiHelpers
+          end
+        end
+
+        after { GrapeTokenAuth.send(:remove_const, :SomeAPI) }
+
+        context 'with no arguments' do
+          before do
+            SomeAPI.mount_confirmation
+          end
+
+          it 'mounts the user confirmation API at root path' do
+            expect(SomeAPI).to have_route('GET', '/confirmation(.json)')
+          end
+        end
+
+        context 'when the params contains a to: key' do
+          before do
+            SomeAPI.mount_confirmation(to: '/auth', for: :mang)
+          end
+
+          it 'mounts the user confirmation API to the path of the value' do
+            expect(SomeAPI).to have_route('GET', '/auth/confirmation(.json)')
+          end
+        end
+
+        context 'when the for param contains an undefined scope' do
+          it 'raises a ScopeUndefinedError' do
+            expect { SomeAPI.mount_confirmation(for: :cat) }
+              .to raise_error ScopeUndefinedError
+          end
+        end
+
+        context 'when the for param contains a valid scope' do
+          before do
+            SomeAPI.mount_confirmation(for: :dog)
+          end
+
+          it 'creates a subclass of the confirmable API with that scope' do
+            expect(GrapeTokenAuth::DogConfirmationAPI.resource_scope).to eq :dog
+          end
+        end
+      end
     end
   end
 end
