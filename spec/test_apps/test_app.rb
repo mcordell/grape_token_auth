@@ -46,5 +46,7 @@ class TestApp < Grape::API
   mount_token_validation(to: '/auth', for: :user)
   mount_omniauth(to: '/auth', for: :user)
   mount_omniauth(to: '/man_auth', for: :man)
+  mount_password_reset(to: '/auth', for: :user)
+  mount_password_reset(to: '/man_auth', for: :man)
   mount_omniauth_callbacks
 end
