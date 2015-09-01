@@ -161,5 +161,17 @@ module GrapeTokenAuth
         expect(subject.key_generator).to be_a CachingKeyGenerator
       end
     end
+
+    describe '#messages' do
+      it 'defaults to Mailer::DEFAULT_MESSAGES' do
+        expect(subject.messages).to eq Mailer::DEFAULT_MESSAGES
+      end
+    end
+
+    describe '#from_address' do
+      it 'defaults to nil' do
+        expect(subject.from_address).to be_nil
+      end
+    end
   end
 end
