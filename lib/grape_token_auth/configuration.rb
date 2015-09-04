@@ -43,8 +43,8 @@ module GrapeTokenAuth
                   :from_address
 
     def initialize
-      @token_lifespan                         = 2.weeks
-      @batch_request_buffer_throttle          = 5.seconds
+      @token_lifespan                         = 60 * 60 * 24 * 7 * 2 # 2 weeks
+      @batch_request_buffer_throttle          = 5 # seconds
       @change_headers_on_each_request         = true
       @mappings                               = {}
       @authentication_keys                    = [:email]
