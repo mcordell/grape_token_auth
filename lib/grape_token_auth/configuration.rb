@@ -40,7 +40,8 @@ module GrapeTokenAuth
                   :secret,
                   :digest,
                   :messages,
-                  :from_address
+                  :from_address,
+                  :default_url_options
 
     def initialize
       @token_lifespan                         = 60 * 60 * 24 * 7 * 2 # 2 weeks
@@ -57,6 +58,7 @@ module GrapeTokenAuth
       @digest                                 = 'SHA256'
       @messages                               = Mailer::DEFAULT_MESSAGES
       @from_address                           = nil
+      @default_url_options                    = {}
     end
 
     def key_generator

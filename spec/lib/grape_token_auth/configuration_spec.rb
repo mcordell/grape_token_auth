@@ -173,5 +173,11 @@ module GrapeTokenAuth
         expect(subject.from_address).to be_nil
       end
     end
+
+    describe '#default_url_options' do
+      it 'defaults to an empty hash' do
+        expect(subject.default_url_options).to eq({})
+      end
+    end
   end
 end
