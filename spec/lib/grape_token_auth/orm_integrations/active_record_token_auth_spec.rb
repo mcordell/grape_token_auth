@@ -260,7 +260,8 @@ module GrapeTokenAuth
           it 'sends an email with the token and the config set to default' do
             notification_opts = {
               token: token,
-              client_config: 'default'
+              client_config: 'default',
+              to: user.email
             }
             expect(GrapeTokenAuth).to receive(:send_notification)
               .with(:reset_password_instructions, notification_opts)
@@ -283,6 +284,142 @@ module GrapeTokenAuth
           it 'returns false' do
             expect(User.exists_in_column?(:email, 'doesntexist@example.com'))
               .to be false
+          end
+        end
+      end
+
+      describe '#build_auth_url' do
+        context 'when passed a url and a set of params' do
+          let(:user) { FactoryGirl.create(:user) }
+          let!(:auth_hash) { user.create_new_auth_token }
+
+          subject(:returned) do
+            user.build_auth_url('http://www.google.com',
+                                token: 'atoken',
+                                client_id: auth_hash['client'])
+          end
+
+          it { is_expected.to start_with('http://www.google.com') }
+
+          it 'encodes passed params' do
+            expect(returned).to match(/token=atoken/)
+            expect(returned).to match(Regexp.new("client_id=#{auth_hash[:client_id]}"))
+          end
+
+          it "encodes the resource's uid as a param" do
+            expect(returned).to match(Regexp.new("uid=#{CGI::escape(user.uid)}"))
+          end
+
+          it 'encodes the expiry as a param' do
+            expect(returned).to match(Regexp.new("expiry=#{auth_hash['expiry']}"))
+          end
+        end
+      end
+
+      describe '.reset_password_by_token' do
+        let(:user) { FactoryGirl.create(:user, :confirmed) }
+        let(:enc_token) { user.reset_password_token }
+        let(:args) { {} }
+
+        GrapeTokenAuth.configure do |c|
+          c.secret = 'secret'
+          c.from_address = 'test@example.com'
+        end
+
+        context 'when provided a valid reset token' do
+          let(:token) { user.send_reset_password_instructions({}) }
+          let(:args) { { reset_password_token: token } }
+
+          context 'and a valid password and password confirmation' do
+            let(:password) { 'tangofoxtrot' }
+            let(:password_args) do
+              { password: password, password_confirmation: password }
+            end
+
+            context 'within the expiry window' do
+              before do
+                args.merge!(password_args)
+                @returned = User.reset_password_by_token(args)
+                user.reload
+              end
+
+              it 'returns the resource' do
+                expect(@returned).to eq user
+              end
+
+              it 'changes the password on the resource' do
+                expect(user.valid_password?(password)).to be true
+              end
+            end
+          end
+        end
+      end
+
+      describe '.reset_token_lifespan' do
+        context 'when the reset_token_lifespan has not been set' do
+          before { User.reset_token_lifespan = nil }
+
+          it 'defaults to 6 hours' do
+            expect(User.reset_token_lifespan).to eq 6.hours
+          end
+        end
+
+        context 'when the reset_token_lifespan has been set' do
+          before { User.reset_token_lifespan = 2.hours }
+
+          it 'defaults to 6 hours' do
+            expect(User.reset_token_lifespan).to eq 2.hours
+          end
+        end
+      end
+
+      describe '#reset_password_period_valid?' do
+        let!(:user) { FactoryGirl.create(:user, :confirmed) }
+        subject { user.reset_password_period_valid? }
+
+        before do
+          Timecop.freeze
+          User.reset_token_lifespan = 6.hours
+        end
+
+        after { Timecop.return }
+
+        context 'when a reset token was sent within the reset lifespan' do
+          before { user.update_attribute(:reset_password_sent_at, 2.hours.ago) }
+
+          it { is_expected.to be true }
+        end
+
+        context 'when a reset token was sent later than the reset lifespan' do
+          before { user.update_attribute(:reset_password_sent_at, 7.hours.ago) }
+
+          it { is_expected.to be false }
+        end
+
+        context 'when a reset token was not sent' do
+          before { user.update_attribute(:reset_password_sent_at, nil) }
+
+          it { is_expected.to be false }
+        end
+      end
+
+      describe 'reset_password' do
+        let(:password) { 'passwordvalid' }
+        let(:password_confirmation) { 'passwordvalid' }
+        let!(:user) { FactoryGirl.create(:user) }
+
+        context 'when provided non-matching confirmation' do
+          it 'set an error on the user' do
+            user.reset_password(password, 'doesntmatch')
+            expect(user).not_to be_valid
+          end
+        end
+
+        context 'when password and confirmation are valid' do
+          before { user.reset_password(password, password_confirmation) }
+
+          it 'changes the password on the resource' do
+            expect(user.valid_password?(password)).to be true
           end
         end
       end

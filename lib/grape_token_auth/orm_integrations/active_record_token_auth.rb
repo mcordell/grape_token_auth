@@ -9,7 +9,8 @@ module GrapeTokenAuth
         base.serialize :tokens, JSON
         base.after_initialize { self.tokens ||= {} }
         base.validates :password, presence: true, on: :create
-        base.validate :password_confirmation_matches, on: :create
+        base.validate :password_confirmation_matches,
+                      if: :encrypted_password_changed?
         base.validates :email, uniqueness: { scope: :provider },
                                format: { with: Configuration::EMAIL_VALIDATION,
                                          message: 'invalid email' }
@@ -20,8 +21,46 @@ module GrapeTokenAuth
             where(column => value).count > 0
           end
 
+          def reset_password_by_token(attributes)
+            original_token = attributes[:reset_password_token]
+            reset_password_token = LookupToken.digest(:reset_password_token,
+                                                      original_token)
+
+            recoverable = find_or_initialize_by(reset_password_token:
+                                                reset_password_token)
+
+            return nil unless recoverable.persisted?
+
+            if recoverable.reset_password_period_valid?
+              recoverable.reset_password(attributes[:password],
+                                         attributes[:password_confirmation])
+            else
+              recoverable.errors.add(:reset_password_token, :expired)
+            end
+
+            recoverable.reset_password_token = original_token
+            recoverable
+          end
+
+          def reset_token_lifespan
+            @reset_token_lifespan || 60 * 60 * 6 # 6 hours
+          end
+
+          attr_writer :reset_token_lifespan
           attr_accessor :case_insensitive_keys
         end
+      end
+
+      def reset_password_period_valid?
+        return false unless reset_password_sent_at
+        expiry = reset_password_sent_at.utc + self.class.reset_token_lifespan
+        Time.now.utc <= expiry
+      end
+
+      def reset_password(password, password_confirmation)
+        self.password = password
+        self.password_confirmation = password_confirmation
+        self.save!
       end
 
       def password_confirmation_matches
@@ -91,10 +130,18 @@ module GrapeTokenAuth
         opts ||= {}
         opts[:client_config] ||= 'default'
         opts[:token] = token
+        opts[:to] = email
 
         GrapeTokenAuth.send_notification(:reset_password_instructions, opts)
 
         token
+      end
+
+      def build_auth_url(url, params)
+        url = URI(url)
+        expiry = tokens[params[:client_id]][:expiry]
+        url.query = params.merge(uid: uid, expiry: expiry).to_query
+        url.to_s
       end
 
       private
