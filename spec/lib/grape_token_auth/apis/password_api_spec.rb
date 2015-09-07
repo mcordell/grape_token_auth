@@ -4,6 +4,13 @@ module GrapeTokenAuth
       Mail::TestMailer.deliveries.last
     end
 
+    before do
+      GrapeTokenAuth.configure do |c|
+        c.secret = 'anewsecret'
+        c.from_address = 'test@example.com'
+      end
+    end
+
     describe 'password reset' do
       let(:redirect_url) { 'http://ng-token-auth.dev' }
       let(:resource) { FactoryGirl.create(:user, :confirmed) }
@@ -19,13 +26,13 @@ module GrapeTokenAuth
 
         describe 'case-sensitive email' do
           let(:mail_reset_token) do
-            mail.body.match(/reset_password_token=(.*)\"/)[1]
+            mail.to_s.match(/reset_password_token=(.*)/)[1].chomp
           end
           let(:mail_config) do
-            CGI.unescape(mail.body.match(/config=([^&]*)&/)[1])
+            CGI.unescape(mail.to_s.match(/config=([^&]*)&/)[1])
           end
           let(:mail_redirect_url) do
-            CGI.unescape(mail_body.match(/redirect_url=([^&]*)&/)[1])
+            CGI.unescape(mail.to_s.match(/redirect_url=([^&]*)&/)[1])
           end
 
           before do
@@ -48,8 +55,9 @@ module GrapeTokenAuth
             end
 
             it 'contains a link with reset token as a query param' do
-              user = User.reset_password_by_token(
-                reset_password_token: mail_reset_token)
+              digest = LookupToken.digest(:reset_password_token,
+                                          mail_reset_token)
+              user = User.find_by(reset_password_token: digest)
               expect(resource.id).to eq user.id
             end
           end
@@ -63,11 +71,10 @@ module GrapeTokenAuth
           end
 
           describe 'password reset link failure' do
-            it 'request should not be authorized' do
-              expect do
-                xhr :get, '/auth/password/edit', reset_password_token: 'bogus',
-                                                 redirect_url: mail_redirect_url
-              end.to raise_error # Error TBD
+            it 'responds with 404' do
+              xhr :get, '/auth/password/edit', reset_password_token: 'bogus',
+                                               redirect_url: mail_redirect_url
+              expect(response.status).to eq 404
             end
           end
 
@@ -154,15 +161,15 @@ module GrapeTokenAuth
 
         describe 'email body' do
           it 'contains a link with redirect url as a query param' do
-            expect(CGI.unescape(mail.body.match(/redirect_url=([^&]*)&/)[1]))
+            expect(CGI.unescape(mail.to_s.match(/redirect_url=([^&]*)&/)[1]))
               .to eq redirect_url
           end
         end
       end
 
       describe 'Using redirect_whitelist' do
-        let(:bad_redirect_url) { Faker::Internet.url }
-        let(:good_redirect_url) { Faker::Internet.url }
+        let(:bad_redirect_url) { 'http://www.bad.com' }
+        let(:good_redirect_url) { 'http://www.good.com' }
 
         before do
           GrapeTokenAuth.configure do |c|
@@ -189,8 +196,8 @@ module GrapeTokenAuth
 
         context 'with a non-whitelisted redirect' do
           before do
-            xhr '/auth/password', :create, email: resource.email,
-                                           redirect_url: bad_redirect_url
+            xhr :post, '/auth/password', email: resource.email,
+                                         redirect_url: bad_redirect_url
           end
 
           it 'fails with 403' do
@@ -200,7 +207,7 @@ module GrapeTokenAuth
       end
 
       describe 'change password' do
-        let(:new_password) { Faker::Internet.password }
+        let(:new_password) { 'thisisanewpassword' }
         let(:auth_headers) { resource.create_new_auth_token }
 
         describe 'success' do
@@ -248,12 +255,11 @@ module GrapeTokenAuth
 
     describe 'password reset on alternate user class' do
       let(:redirect_url) { 'http://ng-token-auth.dev' }
-      let(:resource) { create(:man, :confirmed) }
+      let(:resource) { FactoryGirl.create(:man, :confirmed) }
 
       before do
-        # request.env['devise.mapping'] = Devise.mappings[:mang]
-        xhr :post, '/auth/password', email: resource.email,
-                                     redirect_url: redirect_url
+        xhr :post, '/man_auth/password', email: resource.email,
+                                         redirect_url: redirect_url
         resource.reload
       end
 
@@ -266,16 +272,16 @@ module GrapeTokenAuth
       end
 
       it 'the email body contains a link with reset token as a query param' do
-        mail_reset_token  = mail.body.match(/reset_password_token=(.*)\"/)[1]
-        user = Man.reset_password_by_token(
-          reset_password_token: mail_reset_token)
-        expect(resource.id).to eq user.id
+        mail_reset_token  = mail.to_s.match(/reset_password_token=(.*)/)[1].chomp
+        digest = LookupToken.digest(:reset_password_token, mail_reset_token)
+        man = Man.find_by(reset_password_token: digest)
+        expect(resource.id).to eq man.id
       end
     end
 
     describe 'unconfirmed user', confirmable: true do
       let(:redirect_url) { 'http://ng-token-auth.dev' }
-      let(:resource) { create(:user, :unconfirmed) }
+      let(:resource) { FactoryGirl.create(:user, :unconfirmed) }
 
       before do
         xhr :post, '/auth/password', email: resource.email,
@@ -283,10 +289,9 @@ module GrapeTokenAuth
 
         resource.reload
 
-        mail = # TODO
-        mail_redirect_url = CGI.unescape(
-          mail.body.match(/redirect_url=([^&]*)&/)[1])
-        mail_reset_token  = mail.body.match(/reset_password_token=(.*)\"/)[1]
+        redirect_url = mail.to_s.match(/redirect_url=([^&]*)&/)[1]
+        mail_reset_token  = mail.to_s.match(/reset_password_token=(.*)/)[1]
+        mail_redirect_url = CGI.unescape(redirect_url)
 
         xhr :get, '/auth/password/edit', reset_password_token: mail_reset_token,
                                          redirect_url: mail_redirect_url
@@ -294,7 +299,7 @@ module GrapeTokenAuth
         resource.reload
       end
 
-      it 'unconfirmed email user should now be confirmed' do
+      xit 'unconfirmed email user should now be confirmed' do
         expect(resource.confirmed_at).to be true
       end
     end
@@ -302,17 +307,14 @@ module GrapeTokenAuth
     describe 'alternate config type' do
       let(:config_name) { 'altUser' }
       let(:redirect_url) { 'http://ng-token-auth.dev' }
-      let(:resource) { users(:confirmed_email_user) }
-      let(:mail) do
-        # TODO
-      end
+      let(:resource) { FactoryGirl.create(:user, :confirmed) }
 
       it 'config_name param is included in the confirmation email link' do
         xhr :post, '/auth/password', email: resource.email,
                                      redirect_url: redirect_url,
                                      config_name:  config_name
 
-        mail_config_name  = CGI.unescape(mail.body.match(/config=([^&]*)&/)[1])
+        mail_config_name  = CGI.unescape(mail.to_s.match(/config=([^&]*)&/)[1])
         expect(mail_config_name).to eq config_name
       end
     end
