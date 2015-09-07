@@ -111,7 +111,16 @@ module GrapeTokenAuth
           end
         end
 
-        skip 'when within the batch buffer window' do
+        context 'when not within the batch buffer window' do
+          before do
+            subject.tokens[valid_client_id]['expiry'] = 2.weeks.ago
+            subject.save
+          end
+
+          it 'returns false' do
+            expect(subject.valid_token?(invalid_token, invalid_client_id))
+              .to eq false
+          end
         end
       end
 
