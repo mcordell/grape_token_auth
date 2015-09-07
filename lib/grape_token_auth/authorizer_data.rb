@@ -30,7 +30,7 @@ module GrapeTokenAuth
     end
 
     def token_prerequisites_present?
-      token.present? && uid.present?
+      !token.nil? && !uid.nil?
     end
 
     def fetch_stored_resource(scope)
