@@ -39,7 +39,24 @@ module GrapeTokenAuth
             @reset_token_lifespan || 60 * 60 * 6 # 6 hours
           end
 
+          def confirmation_token_lifespan
+            @confirmat_token_lifespan || 60 * 60 * 24 * 3 # 3 days
+          end
+
+          def confirm_by_token(token)
+            confirmation_digest = LookupToken.digest(:confirmation_token,
+                                                     token)
+            confirmable = find_or_initialize_by(confirmation_token:
+                                                confirmation_digest)
+
+            return nil unless confirmable.persisted?
+
+            confirmable.confirm
+            confirmable
+          end
+
           attr_writer :reset_token_lifespan
+          attr_writer :confirmation_token_lifespan
           attr_accessor :case_insensitive_keys
         end
       end
@@ -130,6 +147,43 @@ module GrapeTokenAuth
         token
       end
 
+      def send_confirmation_instructions(opts)
+        opts ||= {}
+        token = generate_confirmation_token!
+        opts[:token] = token
+
+        # fall back to "default" config name
+        opts[:client_config] ||= 'default'
+        opts[:to] = pending_reconfirmation? ? unconfirmed_email : email
+
+        GrapeTokenAuth.send_notification(:confirmation_instructions,  opts)
+        token
+      end
+
+      # devise method
+      def confirm(args = {})
+        pending_any_confirmation do
+          if confirmation_period_expired?
+            errors.add(:email, :confirmation_period_expired)
+            return false
+          end
+
+          self.confirmed_at = Time.now.utc
+
+          #if self.class.reconfirmable && unconfirmed_email.present?
+          #  self.email = unconfirmed_email
+          #  self.unconfirmed_email = nil
+
+          #  # We need to validate in such cases to enforce e-mail uniqueness
+          #  saved = save(validate: true)
+          #else
+          saved = save(validate: args[:ensure_valid] == true)
+
+          after_confirmation if saved
+          saved
+        end
+      end
+
       def build_auth_url(url, params)
         url = URI(url)
         expiry = tokens[params[:client_id]][:expiry]
@@ -137,7 +191,45 @@ module GrapeTokenAuth
         url.to_s
       end
 
+      def pending_reconfirmation?
+        unconfirmed_email.present?
+      end
+
+      def confirmed?
+        !!confirmed_at
+      end
+
+      def skip_confirmation!
+        self.confirmed_at = Time.now.utc
+      end
+
+      def confirmation_period_expired?
+        (Time.now > self.confirmation_sent_at + self.class.confirmation_token_lifespan)
+      end
+
+      def after_confirmation
+      end
+
       private
+
+      # devise method
+      def pending_any_confirmation
+        if (!confirmed? || pending_reconfirmation?)
+          yield
+        else
+          self.errors.add(:email, :already_confirmed)
+          false
+        end
+      end
+
+      def generate_confirmation_token!
+        token, enc = GrapeTokenAuth::LookupToken.generate(self.class,
+                                                          :confirmation_token)
+        self.confirmation_token     = enc
+        self.confirmation_sent_at = Time.now.utc
+        save(validate: false)
+        token
+      end
 
       def set_reset_password_token
         token, enc = GrapeTokenAuth::LookupToken.generate(self.class,

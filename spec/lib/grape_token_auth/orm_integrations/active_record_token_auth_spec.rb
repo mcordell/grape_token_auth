@@ -247,7 +247,8 @@ module GrapeTokenAuth
         before do
           # Truncate time because db can be setup with less time percision
           Timecop.freeze(Time.now.change(usec: 0))
-          allow(LookupToken).to receive(:generate).and_return([token, encoded])
+          allow(LookupToken).to receive(:generate).with(User, :reset_password_token).and_return([token, encoded])
+
           @returned = user.send_reset_password_instructions(opts)
           user.reload
         end
@@ -277,6 +278,78 @@ module GrapeTokenAuth
               .with(:reset_password_instructions, notification_opts)
             user.send_reset_password_instructions({})
           end
+        end
+      end
+
+      describe '#send_confirmation_instructions' do
+        let(:token)    { 'thistokenwasgenerated' }
+        let(:encoded)  { 'thisisencoded' }
+        let!(:user)    { FactoryGirl.create(:user) }
+        let(:opts)     { {} }
+
+        before do
+          # Truncate time because db can be setup with less time percision
+          Timecop.freeze(Time.now.change(usec: 0))
+          allow(LookupToken).to receive(:generate).with(User, :confirmation_token).and_return([token, encoded])
+          @returned = user.send_confirmation_instructions(opts)
+          user.reload
+        end
+
+        after  { Timecop.return }
+
+        it 'sets the reset_password_token encoded token' do
+          expect(user.confirmation_token).to eq encoded
+        end
+
+        it 'returns the token' do
+          expect(@returned).to eq token
+        end
+
+        it 'sets the confirmation_sent_at to now' do
+          expect(user.confirmation_sent_at).to eq Time.now
+        end
+
+        describe 'email to be sent' do
+          it 'sends an email with the token and the config set to default' do
+            notification_opts = {
+              token: token,
+              client_config: 'default',
+              to: user.email
+            }
+            expect(GrapeTokenAuth).to receive(:send_notification)
+              .with(:confirmation_instructions, notification_opts)
+            user.send_confirmation_instructions({})
+          end
+        end
+      end
+
+      describe 'pending_reconfirmation?' do
+        let(:user) { FactoryGirl.create(:user) }
+        subject    { user.pending_reconfirmation? }
+
+        context "when the resource's unconfirmed_email is not present" do
+          before { user.update_attribute(:unconfirmed_email, nil) }
+          it { is_expected.to be false }
+        end
+
+        context "when the resource's unconfirmed_email is present" do
+          before { user.update_attribute(:unconfirmed_email, Time.now) }
+          it { is_expected.to be true }
+        end
+      end
+
+      describe 'confirmed?' do
+        let(:user)    { FactoryGirl.create(:user) }
+        subject { user.confirmed? }
+
+        context "when the resource's confirmed_at is not present" do
+          before { user.update_attribute(:confirmed_at, nil) }
+          it { is_expected.to be false }
+        end
+
+        context "when the resource's confirmed_at is present" do
+          before { user.update_attribute(:confirmed_at, Time.now) }
+          it { is_expected.to be true }
         end
       end
 
