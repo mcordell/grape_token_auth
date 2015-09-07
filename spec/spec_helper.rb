@@ -17,8 +17,9 @@ require 'warden'
 require 'omniauth'
 require 'omniauth-facebook'
 require 'rack/test'
-require 'support/helpers'
 require 'mail'
+
+Dir['./spec/support/**/*.rb'].sort.each { |f| require f }
 
 %w(database test_apps factories).each do |word|
   root_dir = File.expand_path("../#{word}", __FILE__)
