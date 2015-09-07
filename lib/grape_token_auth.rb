@@ -31,6 +31,7 @@ module GrapeTokenAuth
     end
 
     def send_notification(notification_type, opts)
+      GrapeTokenAuth::Mailer.send(notification_type, opts)
     end
 
     private
