@@ -21,7 +21,7 @@ module GrapeTokenAuth
             where(column => value).count > 0
           end
 
-          def reset_password_by_token(attributes)
+          def find_with_reset_token(attributes)
             original_token = attributes[:reset_password_token]
             reset_password_token = LookupToken.digest(:reset_password_token,
                                                       original_token)
@@ -30,13 +30,6 @@ module GrapeTokenAuth
                                                 reset_password_token)
 
             return nil unless recoverable.persisted?
-
-            if recoverable.reset_password_period_valid?
-              recoverable.reset_password(attributes[:password],
-                                         attributes[:password_confirmation])
-            else
-              recoverable.errors.add(:reset_password_token, :expired)
-            end
 
             recoverable.reset_password_token = original_token
             recoverable
@@ -60,7 +53,7 @@ module GrapeTokenAuth
       def reset_password(password, password_confirmation)
         self.password = password
         self.password_confirmation = password_confirmation
-        self.save!
+        save
       end
 
       def password_confirmation_matches

@@ -325,7 +325,7 @@ module GrapeTokenAuth
         end
       end
 
-      describe '.reset_password_by_token' do
+      describe '.find_with_reset_token' do
         let(:user) { FactoryGirl.create(:user, :confirmed) }
         let(:enc_token) { user.reset_password_token }
         let(:args) { {} }
@@ -348,16 +348,12 @@ module GrapeTokenAuth
             context 'within the expiry window' do
               before do
                 args.merge!(password_args)
-                @returned = User.reset_password_by_token(args)
+                @returned = User.find_with_reset_token(args)
                 user.reload
               end
 
               it 'returns the resource' do
                 expect(@returned).to eq user
-              end
-
-              it 'changes the password on the resource' do
-                expect(user.valid_password?(password)).to be true
               end
             end
           end
