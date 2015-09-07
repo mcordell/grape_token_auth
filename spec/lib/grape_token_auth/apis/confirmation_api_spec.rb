@@ -1,15 +1,23 @@
 module GrapeTokenAuth
-  RSpec.describe ConfirmationAPI, skip: true, confirmable: true do
+  RSpec.describe ConfirmationAPI, confirmable: true do
     let(:mail) do
-      # TODO: way to get the last mail sent
+      Mail::TestMailer.deliveries.last
     end
 
-    let(:token) { mail.body.match(/confirmation_token=([^&]*)&/)[1] }
-    let(:client_config) { mail.body.match(/config=([^&]*)&/)[1] }
+    before do
+      GrapeTokenAuth.configure do |c|
+        c.secret = 'anewsecret'
+        c.from_address = 'test@example.com'
+        c.mappings = { man: Man, user: User }
+      end
+    end
+
+    let(:token) { mail.to_s.match(/confirmation_token=([^&]*)&/)[1] }
+    let(:client_config) { mail.to_s.match(/config=([^&]*)&/)[1] }
+    let(:redirect_url) { 'http://www.someurl.com' }
 
     describe 'confirmation' do
       let(:new_user) { FactoryGirl.create(:user, :unconfirmed) }
-      let(:redirect_url) { Faker::Internet.url }
 
       before do
         new_user.send_confirmation_instructions(redirect_url: redirect_url)
@@ -31,43 +39,36 @@ module GrapeTokenAuth
 
       describe 'successful confirmation' do
         before do
-          xhr :get, :show, confirmation_token: token, redirect_url: redirect_url
+          xhr :get, '/auth/confirmation', confirmation_token: token,
+                                          redirect_url: redirect_url
         end
 
         it 'confirms the user' do
-          expect(new_user.confirmed?).not_to be true
+          new_user.reload
+          expect(new_user).to be_confirmed
         end
 
         it 'redirects to success url' do
-          expect(response.location).to match(Regexp.new("/^#{redirect_url}/"))
+          expect(response.location).to match(Regexp.new("^#{redirect_url}"))
         end
       end
 
       describe 'failure' do
         it 'does not confirm the user' do
           expect do
-            xhr :get, :show, confirmation_token: 'bogus'
+            xhr :get, '/auth/confirmation', confirmation_token: 'bogus'
           end.to raise_error # unclear what, if any, error should occur
-          excpect(resource.confirmed?).to be false
+          expect(new_user).not_to be_confirmed
         end
       end
     end
 
     describe 'alternate resource model' do
       let(:config_name) { 'altUser' }
-      let(:new_man) { FactoryGirl.create(:man, :unconfirmed) }
-
-      before(:all) do
-        # @request.env['devise.mapping'] = Devise.mappings[:mang]
-        # unclear what should happen here
-      end
-
-      after(:all) do
-        # @request.env['devise.mapping'] = Devise.mappings[:user]
-      end
+      let!(:new_man) { FactoryGirl.create(:man, :unconfirmed) }
 
       before do
-        new_user.send_confirmation_instructions(client_config: config_name)
+        new_man.send_confirmation_instructions(client_config: config_name)
       end
 
       describe 'confirmation email body' do
@@ -86,11 +87,12 @@ module GrapeTokenAuth
 
       describe 'successful confirmation' do
         before do
-          xhr :get, :show, confirmation_token: token
+          xhr :get, '/man_auth/confirmation', confirmation_token: token, redirect_url: redirect_url
         end
 
         it 'user confirms the alternate resource' do
-          expect(new_man.confirmed?).not_to be true
+          new_man.reload
+          expect(new_man).to be_confirmed
         end
       end
     end
