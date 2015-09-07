@@ -49,6 +49,10 @@ class Database
         t.string 'last_sign_in_ip'
         t.datetime 'created_at'
         t.datetime 'updated_at'
+        t.string 'confirmation_token'
+        t.datetime 'confirmed_at'
+        t.datetime 'confirmation_sent_at'
+        t.string 'unconfirmed_email' # Only if using reconfirmable
         t.string 'provider',               default: '', null: false
         t.string 'uid',                    default: '', null: false
         t.string 'nickname',               default: '', null: false
