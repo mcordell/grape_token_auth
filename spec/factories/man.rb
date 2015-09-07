@@ -7,7 +7,11 @@ FactoryGirl.define do
     password_confirmation 'password'
 
     trait :confirmed do
-      # confirmable stub
+      confirmed_at Time.now
+    end
+
+    trait :unconfirmed do
+      confirmed_at nil
     end
   end
 end
