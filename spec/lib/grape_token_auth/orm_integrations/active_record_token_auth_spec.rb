@@ -245,7 +245,8 @@ module GrapeTokenAuth
         let(:opts)     { {} }
 
         before do
-          Timecop.freeze
+          # Truncate time because db can be setup with less time percision
+          Timecop.freeze(Time.now.change(usec: 0))
           allow(LookupToken).to receive(:generate).and_return([token, encoded])
           @returned = user.send_reset_password_instructions(opts)
           user.reload
