@@ -13,7 +13,7 @@ module GrapeTokenAuth
                       if: :encrypted_password_changed?
         base.validates :email, uniqueness: { scope: :provider },
                                format: { with: Configuration::EMAIL_VALIDATION,
-                                         message: 'invalid email' }
+                                         message: 'invalid email' }, allow_blank: true
         base.before_update :synchronize_email_and_uid
 
         class << base
@@ -242,7 +242,7 @@ module GrapeTokenAuth
       end
 
       def synchronize_email_and_uid
-        self.uid = email
+        self.uid = email if provider == 'email'
       end
 
       def token_is_current?(token, client_id)

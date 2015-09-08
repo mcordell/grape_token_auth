@@ -34,7 +34,7 @@ class Database
     def create_resource_table(connection, name)
       connection.drop_table(name) if connection.table_exists?(name)
       connection.create_table name.to_s, force: :cascade do |t|
-        t.string 'email',                  default: '', null: false
+        t.string 'email',                  default: ''
         t.string 'image',                  default: '', null: false
         t.string 'encrypted_password',     default: '', null: false
         t.string 'reset_password_token'
