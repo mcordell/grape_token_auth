@@ -47,7 +47,12 @@ describe GrapeTokenAuth do
 
   describe '.send_notification' do
     context 'with a notification type and opts' do
-      xit 'defers to a mailer class'
+      it 'defers to a mailer class' do
+        params = { to: 'h@h.com' }
+        type = :confirmation_instructions
+        expect(GrapeTokenAuth::Mail).to receive(:send).with(type, params)
+        GrapeTokenAuth.send_notification(type, params)
+      end
     end
   end
 
