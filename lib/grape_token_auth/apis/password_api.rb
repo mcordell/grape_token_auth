@@ -71,6 +71,8 @@ module GrapeTokenAuth
             expiry: token.expiry
           }
 
+          resource.confirm unless resource.confirmed?
+
           # TODO: ensure that user is confirmed
           # @resource.skip_confirmation! if @resource.devise_modules.include?(:confirmable) && !@resource.confirmed_at
 

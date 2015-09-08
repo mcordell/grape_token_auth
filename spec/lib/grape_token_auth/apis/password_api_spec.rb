@@ -290,17 +290,20 @@ module GrapeTokenAuth
         resource.reload
 
         redirect_url = mail.to_s.match(/redirect_url=([^&]*)&/)[1]
-        mail_reset_token  = mail.to_s.match(/reset_password_token=(.*)/)[1]
+        token_regex = /reset_password_token=(.*)/
+        mail_reset_token  = mail.to_s.match(token_regex)[1].chomp
         mail_redirect_url = CGI.unescape(redirect_url)
 
-        xhr :get, '/auth/password/edit', reset_password_token: mail_reset_token,
-                                         redirect_url: mail_redirect_url
+        params =  { 'reset_password_token' => mail_reset_token,
+                    'redirect_url' => mail_redirect_url }
+
+        xhr :get, '/auth/password/edit', params
 
         resource.reload
       end
 
-      xit 'unconfirmed email user should now be confirmed' do
-        expect(resource.confirmed_at).to be true
+      it 'unconfirmed email user should now be confirmed' do
+        expect(resource).to be_confirmed
       end
     end
 
