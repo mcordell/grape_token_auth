@@ -210,6 +210,10 @@ module GrapeTokenAuth
       def after_confirmation
       end
 
+      def token_validation_response
+        as_json(except: [:tokens, :created_at, :updated_at])
+      end
+
       private
 
       # devise method

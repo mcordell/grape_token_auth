@@ -7,6 +7,7 @@ module GrapeTokenAuth
         resource = token_authorizer.find_resource(base.resource_scope)
         if resource
           status 200
+          present data: resource.token_validation_response
         else
           throw(:warden, 'errors' => 'Invalid login credentials')
         end
