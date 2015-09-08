@@ -13,12 +13,18 @@ module GrapeTokenAuth
 
     def self.from_env(env)
       new(
-        env[Configuration::UID_KEY],
-        env[Configuration::CLIENT_KEY],
-        env[Configuration::ACCESS_TOKEN_KEY],
-        env[Configuration::EXPIRY_KEY],
+        *data_from_env(env),
         env['warden']
       )
+    end
+
+    def self.data_from_env(env)
+      [Configuration::UID_KEY,
+      Configuration::CLIENT_KEY,
+      Configuration::ACCESS_TOKEN_KEY,
+      Configuration::EXPIRY_KEY].map do |key|
+        env[key] || env['HTTP_' + key.gsub('-', '_').upcase]
+      end
     end
 
     def exisiting_warden_user(scope)
