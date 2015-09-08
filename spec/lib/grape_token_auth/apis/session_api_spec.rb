@@ -3,8 +3,9 @@ module GrapeTokenAuth
     let(:data) { JSON.parse(response.body) }
     context 'existing user' do
       let(:existing_user) do
-        FactoryGirl.create(:user, password: 'secret123',
-                                  password_confirmation: 'secret123')
+        FactoryGirl.create(:user, :confirmed,
+                           password: 'secret123',
+                           password_confirmation: 'secret123')
       end
 
       describe 'success' do
@@ -118,7 +119,7 @@ module GrapeTokenAuth
           expect(response.status).to eq 401
         end
 
-        skip 'has errors' do
+        it 'has errors' do
           expect(data['errors']).not_to be_nil
         end
       end
@@ -162,17 +163,16 @@ module GrapeTokenAuth
         expect(response.status).to eq 401
       end
 
-      skip 'responds with errors' do
-        # for some reason grape is not setting the error message, dunno why
-        # ¯\_(ツ)_/¯.
+      it 'responds with errors' do
         expect(data['errors']).not_to be_nil
       end
     end
 
     describe 'Alternate user class' do
       let(:existing_user) do
-        FactoryGirl.create(:man, password: 'secret123',
-                                 password_confirmation: 'secret123')
+        FactoryGirl.create(:man, :confirmed,
+                           password: 'secret123',
+                           password_confirmation: 'secret123')
       end
 
       before do
@@ -207,12 +207,12 @@ module GrapeTokenAuth
       end
     end
 
-    context 'unconfirmed user', confirmable: true, skip: true do
-      describe 'loggin in' do
-        let(:unconfirmed_user) { create(:user, :unconfirmed) }
+    context 'unconfirmed user', confirmable: true do
+      describe 'logging in' do
+        let(:unconfirmed_user) { FactoryGirl.create(:user, :unconfirmed) }
         before do
-          xhr :post, :create, email: unconfirmed_user.email,
-                              password: 'secret123'
+          xhr :post, '/auth/sign_in', email: unconfirmed_user.email,
+                                      password: 'secret'
         end
 
         it 'fails with 401' do

@@ -204,7 +204,7 @@ module GrapeTokenAuth
       end
 
       def confirmation_period_expired?
-        (Time.now > self.confirmation_sent_at + self.class.confirmation_token_lifespan)
+        confirmation_sent_at && (Time.now > confirmation_sent_at + self.class.confirmation_token_lifespan)
       end
 
       def after_confirmation
