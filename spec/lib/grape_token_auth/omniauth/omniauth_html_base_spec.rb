@@ -42,9 +42,8 @@ module GrapeTokenAuth
           expect { ValidSubclass.new.render_html }.not_to raise_error
         end
 
-        it 'calls json_post_data and auth_origin_url' do
+        it 'calls json_post_data' do
           expect(subclass).to receive(:json_post_data)
-          expect(subclass).to receive(:auth_origin_url)
           subclass.render_html
         end
 

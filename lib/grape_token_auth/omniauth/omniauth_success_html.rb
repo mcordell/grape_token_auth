@@ -22,12 +22,16 @@ module GrapeTokenAuth
     end
 
     def auth_origin_url
-      auth_url = omniauth_params['auth_origin_url']
+      @omniauth_params['auth_origin_url'] || @omniauth_params[:auth_origin_url]
+    end
 
-      # ensure that hash-bang is present BEFORE querystring for angularjs
-      auth_url += '#' unless auth_url.match(/#/)
+    def window_type
+      @omniauth_params['omniauth_window_type'] ||
+        @omniauth_params[:omniauth_window_type]
+    end
 
-      "#{auth_url}?#{auth_origin_query_params.to_query}"
+    def full_redirect_url
+      "#{auth_origin_url}?#{auth_origin_query_params.to_query}"
     end
 
     def json_post_data
@@ -46,11 +50,11 @@ module GrapeTokenAuth
 
     def auth_origin_query_params
       {
-        token:     oauth_resource.token,
-        client_id: oauth_resource.client_id,
-        uid:       oauth_resource.uid,
-        expiry:    oauth_resource.expiry,
-        config:    config
+        auth_token: oauth_resource.token,
+        client_id:  oauth_resource.client_id,
+        uid:        oauth_resource.uid,
+        expiry:     oauth_resource.expiry,
+        config:     config
       }
     end
   end

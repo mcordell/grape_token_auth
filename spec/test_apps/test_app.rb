@@ -39,6 +39,10 @@ class TestApp < Grape::API
     }
   end
 
+  get '/auth_origin' do
+    present params
+  end
+
   mount_registration(to: '/auth', for: :user)
   mount_registration(to: '/man_auth', for: :man)
   mount_sessions(to: '/auth', for: :user)

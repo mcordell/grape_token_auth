@@ -23,6 +23,34 @@ module GrapeTokenAuth
         def sign_in_resource(resource, scope)
           request.env['warden'].session_serializer.store(resource, scope)
         end
+
+        def redirect_or_render(success_html)
+          if %w(inAppBrowser newWindow).include?(success_html.window_type)
+            render_html(success_html.render_html)
+          elsif success_html.auth_origin_url
+            # default to same-window implementation, which forwards back to
+            # auth_origin_url build and redirect to destination url
+            redirect success_html.full_redirect_url
+          else
+            # there SHOULD always be an auth_origin_url, but if someone does
+            # something silly like coming straight to this url or refreshing the
+            # page at the wrong time, there may not be one. In that case, just
+            # render in plain text the error message if there is one or
+            # otherwisei a generic message.
+            fallback_render 'An error occurred'
+          end
+        end
+
+        def fallback_render(text)
+          render_html <<-EOD
+            <html>
+                    <head></head>
+                    <body>
+                            #{text}
+                    </body>
+            </html>
+          EOD
+        end
       end
 
       base.desc 'resource redirector for initial auth attempt' do
@@ -53,7 +81,7 @@ module GrapeTokenAuth
                                                  omniauth_params)
         if success_html.persist_oauth_attributes!
           sign_in_resource(success_html.resource, base.resource_scope)
-          render_html(success_html.render_html)
+          redirect_or_render(success_html)
         else
           status 500
         end

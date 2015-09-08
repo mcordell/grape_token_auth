@@ -35,7 +35,7 @@ module GrapeTokenAuth
       end
     end
 
-    describe '#auth_origin_url' do
+    describe '#full_redirect_url' do
       let(:token) { 'hello' }
       let(:client_id) { 'lkjakl' }
       let(:uid) { 'eeeeee' }
@@ -49,32 +49,21 @@ module GrapeTokenAuth
       end
       let(:oauth_params) { { 'auth_origin_url' => passed_url } }
 
-      context "when its oauth param's 'auth_origin_url' ends in #" do
-        let(:passed_url) { 'http://www.test.com/#' }
+      let(:passed_url) { 'http://www.test.com/#' }
 
-        it 'returns a url that begins with that url' do
-          expect(success_html.auth_origin_url)
-            .to match Regexp.new "\\A#{passed_url}"
-        end
-      end
-
-      context "when its oauth param's 'auth_origin_url' does not end in #" do
-        let(:passed_url) { 'http://www.test.com/' }
-
-        it 'returns a url that begins with that url and a #' do
-          expect(success_html.auth_origin_url)
-            .to match Regexp.new("\\A#{passed_url}\#")
-        end
+      it 'returns a url that begins with the passed url' do
+        expect(success_html.full_redirect_url)
+          .to match Regexp.new "\\A#{passed_url}"
       end
 
       describe 'query parameters' do
         let(:passed_url) { 'http://www.test.com/' }
         let!(:query_params) do
-          CGI.parse(success_html.auth_origin_url.split('?')[1])
+          CGI.parse(success_html.full_redirect_url.split('?')[1])
         end
 
         it 'contains the token' do
-          expect(query_params['token']).to eq [token]
+          expect(query_params['auth_token']).to eq [token]
         end
 
         it 'contains the expiry' do

@@ -2,30 +2,37 @@
 <html>
   <head>
     <script>
-      var usingExternalWindow = function() {
-        var nav     = navigator.userAgent.toLowerCase(),
-            ieLTE10 = (nav && nav.indexOf('msie') != -1),
-            ie11    = !!navigator.userAgent.match(/Trident.*rv\:11\./);
-        return !(ieLTE10 || ie11);
-      }
+      /*
+        The data is accessible in two ways:
 
-      if (usingExternalWindow()) {
-        window.addEventListener("message", function(ev) {
-          if (ev.data === "requestCredentials") {
-            ev.source.postMessage(
-              <%= json_post_data %>
-            , '*');
-            window.close();
-          }
-        });
-      } else {
-        window.location.href = "<%= auth_origin_url %>";
+        1. Using the postMessage api, this window will respond to a
+            'message' event with a post of all the data. (This can
+            be used by browsers other than IE if this window was
+            opened with window.open())
+        2. This window has a function called requestCredentials which,
+            when called, will return the data. (This can be
+            used if this window was opened in an inAppBrowser using
+            Cordova / PhoneGap)
+      */
+
+      var data = <%= json_post_data %>;
+
+      window.addEventListener("message", function(ev) {
+        if (ev.data === "requestCredentials") {
+          ev.source.postMessage(data, '*');
+          window.close();
+        }
+      });
+      function requestCredentials() {
+        return data;
       }
+      setTimeout(function() {
+        document.getElementById('text').innerHTML = (data && data.error) || 'Redirecting...';
+      }, 1000);
     </script>
   </head>
   <body>
-    <pre>
-      Redirecting...
+    <pre id="text">
     </pre>
   </body>
 </html>

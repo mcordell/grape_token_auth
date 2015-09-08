@@ -2,8 +2,8 @@ module GrapeTokenAuth
   describe OmniAuthAPI do
     let(:redirect_url) { 'http://example.org/' }
     let(:post_message) do
-      post_msg_regex = /postMessage\((?<data>.*), '\*'\);/m
-      JSON.parse(post_msg_regex.match(body)[:data])
+      data_json = response.body.match(/var data \= (.+)\;/)[1]
+      ActiveSupport::JSON.decode(data_json)
     end
 
     before do
@@ -37,9 +37,13 @@ module GrapeTokenAuth
         describe 'from api to provider' do
           let(:user) { User.last }
           let!(:user_count) { User.count }
+          let(:params) do
+            { 'auth_origin_url' => redirect_url,
+              'omniauth_window_type' => 'newWindow' }
+          end
 
           before do
-            get_via_redirect '/auth/facebook', 'auth_origin_url' => redirect_url
+            get_via_redirect '/auth/facebook', params
           end
 
           it 'status should be success' do
@@ -89,6 +93,74 @@ module GrapeTokenAuth
               expect(user.last_sign_in_ip).not_to be_nil
             end
           end
+
+          context 'with omniauth_window_type=newWindow' do
+            let(:params) do
+              { auth_origin_url: redirect_url,
+                omniauth_window_type: 'newWindow' }
+            end
+
+            it 'succeeds' do
+              expect(response.status).to eq 200
+            end
+
+            it 'has the expected data in the new window' do
+              data_json = response.body.match(/var data \= (.+)\;/)[1]
+              data = ActiveSupport::JSON.decode(data_json)
+              user_json = User.last.as_json(except: [:updated_at]).to_json
+              expected_data = ActiveSupport::JSON.decode(user_json)
+              expected_data.merge!('message' => 'deliverCredentials')
+              expect(data.delete('auth_token')).not_to be_nil
+              expect(data.delete('expiry')).not_to be_nil
+              expect(data.delete('client_id')).not_to be_nil
+              data.delete('config')
+              data.delete('updated_at')
+              expect(data).to eq expected_data
+            end
+          end
+
+          context 'with omniauth_window_type=inAppBrowser' do
+            before do
+              get_via_redirect '/auth/facebook',
+                               auth_origin_url: redirect_url,
+                               omniauth_window_type: 'inAppBrowser'
+            end
+
+            it 'succeeds' do
+              expect(response.status).to eq 200
+            end
+
+            it 'has the expected data in the new window' do
+              data_json = response.body.match(/var data \= (.+)\;/)[1]
+              data = ActiveSupport::JSON.decode(data_json)
+              user_json = User.last.as_json(except: [:updated_at]).to_json
+              expected_data = ActiveSupport::JSON.decode(user_json)
+              expected_data.merge!('message' => 'deliverCredentials')
+              expect(data.delete('auth_token')).not_to be_nil
+              expect(data.delete('expiry')).not_to be_nil
+              expect(data.delete('client_id')).not_to be_nil
+              data.delete('config')
+              data.delete('updated_at')
+              expect(data).to eq expected_data
+            end
+          end
+
+          context 'with omniauth_window_type=sameWindow' do
+            before do
+              get_via_redirect '/auth/facebook',
+                               'auth_origin_url' => '/auth_origin',
+                               'omniauth_window_type' => 'sameWindow'
+            end
+
+            it 'redirects to auth_origin_url with all expected query params' do
+              passed_params = ActiveSupport::JSON.decode(response.body)
+
+              # check that all the auth stuff is there
+              [:auth_token, :client_id, :uid, :expiry].each do |key|
+                expect(passed_params).to have_key(key.to_s)
+              end
+            end
+          end
         end
       end
 
@@ -98,14 +170,13 @@ module GrapeTokenAuth
           let!(:user_count) { User.count }
 
           before do
-            get_via_redirect '/man_auth/facebook', auth_origin_url: redirect_url
+            get_via_redirect '/man_auth/facebook',
+                             auth_origin_url: redirect_url,
+                             'omniauth_window_type' => 'inAppBrowser'
           end
 
           it 'status should be success' do
             expect(response.status).to eq 200
-          end
-
-          skip 'request should pass correct redirect_url' do
           end
 
           it 'creates a man' do
