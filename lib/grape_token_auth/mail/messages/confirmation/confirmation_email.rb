@@ -1,5 +1,5 @@
 module GrapeTokenAuth
-  module Mailer
+  module Mail
     class ConfirmationEmail < MessageBase
       TEXT_TEMPLATE = File.expand_path('../confirmation.text.erb', __FILE__)
       HTML_TEMPLATE = File.expand_path('../confirmation.html.erb', __FILE__)

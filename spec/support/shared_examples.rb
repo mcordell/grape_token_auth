@@ -5,7 +5,7 @@ RSpec.shared_examples 'a grape token auth email' do
   let(:msg_subject) { 'Message subject' }
   let(:text_body) { 'Message body' }
   let(:html_body) { '<html><body>Message body</body></html>' }
-  subject(:delivery) { Mail::TestMailer.deliveries.last }
+  subject(:delivery) { ::Mail::TestMailer.deliveries.last }
 
   before do
     GrapeTokenAuth.configuration.from_address = from

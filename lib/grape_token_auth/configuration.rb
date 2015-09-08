@@ -56,7 +56,7 @@ module GrapeTokenAuth
       @smtp_configuration                     = {}
       @secret                                 = nil
       @digest                                 = 'SHA256'
-      @messages                               = Mailer::DEFAULT_MESSAGES
+      @messages                               = Mail::DEFAULT_MESSAGES
       @from_address                           = nil
       @default_url_options                    = {}
     end

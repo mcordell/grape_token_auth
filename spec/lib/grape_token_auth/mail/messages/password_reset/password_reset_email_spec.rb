@@ -1,4 +1,4 @@
-module GrapeTokenAuth::Mailer
+module GrapeTokenAuth::Mail
   RSpec.describe PasswordResetEmail do
     before do
       GrapeTokenAuth.configure do |c|

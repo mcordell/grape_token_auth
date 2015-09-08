@@ -1,5 +1,5 @@
 module GrapeTokenAuth
-  module Mailer
+  module Mail
     class MessageBase
       attr_reader :opts, :message, :to_address
       attr_writer :subject
@@ -45,20 +45,20 @@ module GrapeTokenAuth
       end
 
       def prepare_message
-        @message = Mail.new
+        @message = ::Mail.new
         @message.to = @opts[:to]
         @message.from = GrapeTokenAuth.configuration.from_address
         @message.subject = @subject
       end
 
       def prepare_text
-        part = Mail::Part.new
+        part = ::Mail::Part.new
         part.body = text_body
         part
       end
 
       def prepare_html
-        part = Mail::Part.new
+        part = ::Mail::Part.new
         part.content_type = 'text/html; charset=UTF-8'
         part.body = html_body
         part

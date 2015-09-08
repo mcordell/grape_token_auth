@@ -1,7 +1,7 @@
 module GrapeTokenAuth
   RSpec.describe PasswordAPI do
     let(:mail) do
-      Mail::TestMailer.deliveries.last
+      ::Mail::TestMailer.deliveries.last
     end
 
     before do

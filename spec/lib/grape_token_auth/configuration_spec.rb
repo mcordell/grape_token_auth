@@ -163,8 +163,8 @@ module GrapeTokenAuth
     end
 
     describe '#messages' do
-      it 'defaults to Mailer::DEFAULT_MESSAGES' do
-        expect(subject.messages).to eq Mailer::DEFAULT_MESSAGES
+      it 'defaults to Mail::DEFAULT_MESSAGES' do
+        expect(subject.messages).to eq Mail::DEFAULT_MESSAGES
       end
     end
 

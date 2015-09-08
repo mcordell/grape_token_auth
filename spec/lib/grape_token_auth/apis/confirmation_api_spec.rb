@@ -1,7 +1,7 @@
 module GrapeTokenAuth
   RSpec.describe ConfirmationAPI, confirmable: true do
     let(:mail) do
-      Mail::TestMailer.deliveries.last
+      ::Mail::TestMailer.deliveries.last
     end
 
     before do

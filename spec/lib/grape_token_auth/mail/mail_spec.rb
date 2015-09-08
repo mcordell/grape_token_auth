@@ -1,7 +1,7 @@
 module GrapeTokenAuth
-  RSpec.describe Mailer do
+  RSpec.describe Mail do
     describe '.send' do
-      subject { GrapeTokenAuth::Mailer.send(message, opts) }
+      subject { GrapeTokenAuth::Mail.send(message, opts) }
       let(:opts)    { { to: 'test@example.com' } }
       let(:message) { :password_reset }
 

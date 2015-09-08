@@ -1,5 +1,5 @@
 module GrapeTokenAuth
-  module Mailer
+  module Mail
     class PasswordResetEmail < MessageBase
       TEXT_TEMPLATE = File.expand_path('../password_reset.text.erb', __FILE__)
       HTML_TEMPLATE = File.expand_path('../password_reset.html.erb', __FILE__)
