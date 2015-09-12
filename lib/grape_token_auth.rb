@@ -31,7 +31,8 @@ module GrapeTokenAuth
     end
 
     def send_notification(notification_type, opts)
-      GrapeTokenAuth::Mail.send(notification_type, opts)
+      message = GrapeTokenAuth::Mail.initialize_message(notification_type, opts)
+      configuration.mailer.send!(message, opts)
     end
 
     private

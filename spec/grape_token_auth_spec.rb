@@ -50,7 +50,12 @@ describe GrapeTokenAuth do
       it 'defers to a mailer class' do
         params = { to: 'h@h.com' }
         type = :confirmation_instructions
-        expect(GrapeTokenAuth::Mail).to receive(:send).with(type, params)
+        message_double = double
+        expect(GrapeTokenAuth::Mail).to receive(:initialize_message)
+          .with(type, params)
+          .and_return(message_double)
+        expect(GrapeTokenAuth::Mail::SMTPMailer).to receive(:send!)
+          .with(message_double, params)
         GrapeTokenAuth.send_notification(type, params)
       end
     end

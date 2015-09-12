@@ -10,17 +10,10 @@ module GrapeTokenAuth
     }
 
     class << self
-      def send(message, opts)
-        message = initialize_message(message, opts)
-        return false unless message
-        return false unless message.prepare!
-        message.send
-      end
-
-      def initialize_message(message, opts)
+      def initialize_message(message_type, opts)
         messages = GrapeTokenAuth.configuration.messages
-        return nil unless messages.key?(message)
-        messages[message].new(opts)
+        return nil unless messages.key?(message_type)
+        messages[message_type].new(opts)
       end
 
       private
