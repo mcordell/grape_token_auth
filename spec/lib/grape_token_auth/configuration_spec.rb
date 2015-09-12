@@ -179,5 +179,11 @@ module GrapeTokenAuth
         expect(subject.default_url_options).to eq({})
       end
     end
+
+    describe '#mailer' do
+      it 'defaults to an SMTPMailer' do
+        expect(subject.mailer).to eq(GrapeTokenAuth::Mail::SMTPMailer)
+      end
+    end
   end
 end
