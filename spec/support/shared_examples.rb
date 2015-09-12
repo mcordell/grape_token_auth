@@ -1,22 +1,16 @@
 RSpec.shared_examples 'a grape token auth email' do
-  let(:message) { described_class.new(to: to) }
-  let(:from) { 'from@example.com' }
-  let(:to) { 'test@example.com' }
-  let(:msg_subject) { 'Message subject' }
-  let(:text_body) { 'Message body' }
-  let(:html_body) { '<html><body>Message body</body></html>' }
-  subject(:delivery) { ::Mail::TestMailer.deliveries.last }
+  it { is_expected.to respond_to :text_body }
+  it { is_expected.to respond_to :html_body }
+end
 
-  before do
-    GrapeTokenAuth.configuration.from_address = from
-    message.subject = msg_subject
-    message.text_body = text_body
-    message.html_body = html_body
-    message.prepare!
-    message.send
+RSpec.shared_examples 'a grape token auth mailer' do
+  subject(:mailer) { described_class.new(double(), {}) }
+
+  it 'responds to .send!' do
+    expect(described_class).to respond_to :send!
   end
 
-  it 'is a multipart email' do
-    expect(delivery.parts.count).to be > 1
-  end
+  it { is_expected.to respond_to :prepare_email! }
+  it { is_expected.to respond_to :send_mail }
+  it { is_expected.to respond_to :valid_options? }
 end
