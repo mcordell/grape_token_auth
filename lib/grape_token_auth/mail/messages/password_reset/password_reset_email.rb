@@ -11,7 +11,7 @@ module GrapeTokenAuth
 
       def reset_link
         protocol = url_options[:ssl] ? URI::HTTPS : URI::HTTP
-        options = url_options.merge(query: reset_params.to_query)
+        options = url_options.merge(query: reset_params.to_query, path: opts[:edit_path])
         protocol.build(options).to_s
       end
 
