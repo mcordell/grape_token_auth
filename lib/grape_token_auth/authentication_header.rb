@@ -29,7 +29,11 @@ module GrapeTokenAuth
           auth_headers = resource.create_new_auth_token(client_id)
         end
       end
-      auth_headers
+      coerce_headers_to_strings(auth_headers)
+    end
+
+    def coerce_headers_to_strings(auth_headers)
+      auth_headers.each { |k, v|  auth_headers[k] = v.to_s }
     end
 
     def batch_request?

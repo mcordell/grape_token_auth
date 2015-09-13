@@ -112,7 +112,7 @@ end
 def auth_header_format(client_id)
   {
     'access-token' => a_kind_of(String),
-    'expiry' => a_kind_of(Integer),
+    'expiry' => a_kind_of(String),
     'client' => client_id,
     'token-type' => 'Bearer',
     'uid' => a_kind_of(String)
