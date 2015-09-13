@@ -55,10 +55,26 @@ module GrapeTokenAuth
             confirmable
           end
 
+          def serialize_into_session(record)
+            [record.to_key, record.authenticatable_salt]
+          end
+
+          def serialize_from_session(key, salt)
+            record = get(key)
+            record if record && record.authenticatable_salt == salt
+          end
+
+          def get(key)
+            find(key).first
+          end
+
           attr_writer :reset_token_lifespan
           attr_writer :confirmation_token_lifespan
           attr_accessor :case_insensitive_keys
         end
+      end
+
+      def authenticatable_salt
       end
 
       def reset_password_period_valid?

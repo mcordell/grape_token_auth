@@ -26,6 +26,26 @@ module GrapeTokenAuth
       configure(&block) if block_given?
     end
 
+    def configure_warden(warden_manager)
+      configuration.mappings.each do |scope, klass|
+        warden_manager.serialize_into_session(scope) do |record|
+          klass.serialize_into_session(record)
+        end
+
+        warden_manager.serialize_from_session(scope) do |key|
+          klass.serialize_from_session(*key)
+        end
+      end
+    end
+
+    def setup_warden!(builder)
+      builder.use Warden::Manager do |manager|
+        manager.failure_app = GrapeTokenAuth::UnauthorizedMiddleware
+        manager.default_scope = :user
+        GrapeTokenAuth.configure_warden(manager)
+      end
+    end
+
     def set_omniauth_path_prefix!
       ::OmniAuth.config.path_prefix = configuration.omniauth_prefix
     end
