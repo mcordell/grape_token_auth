@@ -13,7 +13,7 @@ module GrapeTokenAuth
       end
 
       def html_body
-        text_template.result(binding)
+        html_template.result(binding)
       end
 
       protected
