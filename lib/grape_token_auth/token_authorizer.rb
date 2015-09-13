@@ -38,6 +38,11 @@ module GrapeTokenAuth
 
     def load_user_from_uid
       @user = resource_class.find_by_uid(data.uid)
+    # TODO: hacky solution to the fact that this statement can fail sporadically
+      # with multiple requests. Nil returned from the statement. but
+      # re-executing the request causes it to pass?
+    rescue ::ActiveRecord::StatementInvalid
+      @user = resource_class.find_by_uid(data.uid)
     end
 
     def resource_from_existing_warden_user(scope)
