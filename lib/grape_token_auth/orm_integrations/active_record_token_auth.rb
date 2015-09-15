@@ -299,10 +299,10 @@ module GrapeTokenAuth
       def build_auth_header(token)
         {
           'access-token' => token.to_s,
-          'expiry' => token.expiry,
-          'client' => token.client_id,
+          'expiry' => token.expiry.to_s,
+          'client' => token.client_id.to_s,
           'token-type' => 'Bearer',
-          'uid' => uid
+          'uid' => uid.to_s
         }
       end
     end

@@ -32,7 +32,7 @@ module GrapeTokenAuth
 
         it 'returned expiry is the time currently plus the token lifespan' do
           expiry_time = (Time.now + token_lifespan).to_i
-          expect(@returned_hash['expiry']).to eq expiry_time
+          expect(@returned_hash['expiry']).to eq expiry_time.to_s
         end
 
         it 'persists the token info under the client id in the users tokens' do
