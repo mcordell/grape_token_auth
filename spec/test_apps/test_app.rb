@@ -9,7 +9,7 @@ class TestApp < Grape::API
   format :json
 
   include GrapeTokenAuth::TokenAuthentication
-  include GrapeTokenAuth::ApiHelpers
+  include GrapeTokenAuth::MountHelpers
 
   get '/' do
     authenticate_user!
