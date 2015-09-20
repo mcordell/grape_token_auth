@@ -27,7 +27,7 @@ module GrapeTokenAuth
     end
 
     describe '#redirect_whitelist' do
-      it 'defaults to redirect_whitelist' do
+      it 'defaults to nil' do
         expect(subject.redirect_whitelist).to be_nil
       end
     end
