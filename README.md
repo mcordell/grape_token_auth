@@ -1,26 +1,28 @@
 # GrapeTokenAuth
 [![Code Climate GPA][11]][12] [![Test Coverage][13]][14] [![Circle CI][15]][16]
 
-> __This gem is in active development__ and is not ready for production. See this
-issue milestone for reaching [functional parity with devise token auth][10] and
-being ready. Feel free to ping me if you want to help.
+> __This gem is in active development__ but approaching a 0.1.0 release. If you
+are interested in helping out please get the release candidate and submit issues
+and PRs to help get it into a production-ready state!
 
 GrapeTokenAuth is a token authentication solution for grape. It is compatible
-with [ng-token-auth][1] (for angular) and [j-toker][2] (for jquery) and is meant
+with [ng-token-auth][1] (for angular) and [j-toker][2] (for jQuery) and is meant
 as a [grape][4] (rather than rails) version of [devise_token_auth][3]. As such,
 one of the primary goals of this project is to only depend on grape and
 [warden][9] and thus not make presumptions that you are using rails. If
 you are placing a grape app within a rails+devise app you might be
 interested in [grape_devise_token_auth][5].
 
-This gem is a port of [devise_token-auth][4] written by [Lyann Dylan
-Hurley][6] who did great work and I highly recommend reading his [conceptual
-section on that gem][7].
+This gem is a port of [devise_token-auth][4] written by [Lyann Dylan Hurley][6]
+and [the team of contributors][dta-contributors] who did great work and I highly
+recommend reading the [conceptual section on that gem][7].
 
 _Philosophy_
 
 This gem aims to maintain a small direct dependency footprint. As such,
-it currently depends only on grape, warden, and bcrypt.
+it currently depends only on grape, warden, mail, and bcrypt. Eventually, I hope
+to break this gem up into modules so that you can be even more selective on the
+code and dependencies that are required.
 
 ## Installation
 
@@ -32,13 +34,22 @@ gem 'grape_token_auth'
 
 And then execute:
 
-    $ bundle
+$ bundle
 
 Or install it yourself as:
 
-    $ gem install grape_token_auth
+$ gem install grape_token_auth
 
-## Setup
+## Quick-Start Setup
+
+This will cover the minimum setup to get grape\_token\_auth running. For a more
+detailed walk through you can refer to this [blog post][gta-setup], the [demo
+repo][demo-repo], and the [wiki][gta-wiki]. Setup has 4 parts:
+
+1. [Middleware Setup](#middlewaresetup)
+2. [Model/ORM setup](#modelormsetup)
+3. [Grape Token Auth configuration](#grapetokenauthconfiguration)
+4. [Mounting Authentication APIs](#mountingauthenticationapis)
 
 ###Middleware setup
 
@@ -47,26 +58,31 @@ properly. In a simple rack environment this is usually as easy as adding the
 following to the `config.ru`:
 
 ```ruby
-require 'warden'
+# config.ru
 
-use Warden::Manager do |manager|
-  manager.failure_app = GrapeTokenAuth::UnauthorizedMiddleware
-end
+require 'warden'
+require 'grape_token_auth'
+
+## Setup session middleware (E.g. Rack::Session::Cookie)
+
+GrapeTokenAuth.setup_warden!(self)
 
 run YourGrapeAPI
 ```
 
-In rails it might look like this:
-
-`application.rb`:
+In rails, you will need to setup warden as so:
 
 ```ruby
+# application.rb
+
 config.middleware.insert_after ActionDispatch::Flash, Warden::Manager do |manager|
   manager.failure_app = GrapeTokenAuth::UnauthorizedMiddleware
+  manager.default_scope = :user
+  GrapeTokenAuth.configure_warden(manager)
 end
 ```
 
-###Model/ORM setup
+### Model/ORM setup
 
 Include the module for your ORM within the model classes. At the moment, only
 ActiveRecord is supported but other ORMs are planned. Your model must
@@ -80,11 +96,12 @@ class User < ActiveRecord::Base
 end
 ```
 
-###Define mappings
+### Grape Token Auth Configuration
 
 GTA does not make guesses about what scopes and user classes you are using, you
 must define them before the Grape API is loaded. In rails this could be in a
-initializer, in a simple rack app it could be in `config.ru`).
+initializer, for a rack up simpy run the setup somewhere before the API class
+definitions.
 
 To define mappings the scope is the key of the mapping hash and the value is the
 Model that the scope maps to. For the above user class this would be:
@@ -92,25 +109,82 @@ Model that the scope maps to. For the above user class this would be:
 ```ruby
 GrapeTokenAuth.setup! do |config|
 	config.mappings = { user: User }
+	config.secret   = 'THIS WILL BE A LONG HEX STRING'
 end
 ```
 
-##Grape::API integrations
+**Note on Secret** : generate a unique secret using `rake secret` in a rails app
+or via [these directions][secret].
 
-Finally, include `GrapeTokenAuth::TokenAuthentication` within the Grape::API you
-want to protect. For example:
+
+### Mounting authentication APIs
+
+In order to use a given feature of GrapeTokenAuth, the corresponding API must be
+mounted. This can be accomplished in your grape app by first including the mount
+helpers:
+
 
 ```ruby
 class TestApp < Grape::API
   format :json
 
-  include GrapeTokenAuth::TokenAuthentication
+  include GrapeTokenAuth::MountHelpers
 
   #...
 end
 ```
 
-##Usage
+Then you can use the individual helpers to mount a given GTA API:
+
+```ruby
+class TestApp < Grape::API
+  # ...
+
+  mount_registration(to: '/auth', for: :user)
+  mount_session(to: '/auth', for: :user)
+  mount_token_validation(to: '/auth', for: :user)
+  mount_confirmation(to: '/auth', for: :user)
+
+  # ...
+end
+```
+
+
+the first line means that for that the GrapeTokenAuth registration API is being
+mounted to `/auth` relative to wherever `TestApp` is mounted. Presuming that
+TestApp is being run at root, registration endpoints will be at `/auth`. Also,
+we are defining the scope that these endpoints pertain to (user). **Important**
+the scope must be defined in the [configuration
+step](#grapetokenauthconfiguration).
+
+A table of the various APIs and their associated helpers follows:
+
+| API | helper | description |
+| --- | --- | --- |
+| Registration         | `mount_registration` | used to register new 'email' type users |
+| Session              | `mount_sessions`     | used to login 'email' type users        |
+| Confirmation | `mount_confirmation` | used to confirm 'email' users new emails |
+| TokenValidation      | `mount_token_validation`      | used to tokens for all type users        |
+| OmniAuth | `mount_omniauth` | used to register/login omniauth users, requires the OmniAuthCallback API |
+| OmniAuthCallback | `mount_omniauth_callbacks` |  used to register/login omniauth users, requires the OmniAuth API|
+| PasswordReset | `mount_password_reset` | used to issue password resets for forgotten passwords|
+
+## Usage
+
+First include the TokenAuthentication module in the Grape API you want to
+enforce authentication on.
+
+```ruby
+class TestApp < Grape::API
+  # ...
+
+  include GrapeTokenAuth::TokenAuthentication
+
+  # ...
+end
+```
+
+### Enforcing authentication on an endpoint
 
 In any Grape endpoint you can call `authenticate_{SCOPE}!` to enforce
 authentication on that endpoint. For example, the following:
@@ -123,6 +197,9 @@ end
 ```
 
 would authenticate against the `:user` scope when trying to GET the `/` route.
+
+
+### Enforcing authentication on all endpoints
 
 Alternatively, if you want to protect all of the endpoints in a API file, place
 the authentication call in a before filter, like so:
@@ -141,12 +218,13 @@ After checking out the repo, run `bin/setup` to install dependencies. Then,
 run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To run tests, you will need postgres setup and configured correctly (see
-`spec/database.yml`).
+`config/database.yml`). Run `rake db:setup` to create the test db and `rake db:reset`
+to reset the db.
 
 
 ## Contributing
 
-[See CONTRIBUTING.md][17]
+[See CONTRIBUTING.md][contributing]
 
 [1]: https://github.com/lynndylanhurley/ng-token-auth
 [2]: https://github.com/lynndylanhurley/j-toker
@@ -164,4 +242,8 @@ To run tests, you will need postgres setup and configured correctly (see
 [14]: https://codeclimate.com/github/mcordell/grape_token_auth/coverage
 [15]: https://circleci.com/gh/mcordell/grape_token_auth.svg?style=svg
 [16]: https://circleci.com/gh/mcordell/grape_token_auth
-[17]: https://github.com/mcordell/grape_token_auth/blob/master/CONTRIBUTING.md
+[contributing]: https://github.com/mcordell/grape_token_auth/blob/master/CONTRIBUTING.md
+[gta-wiki]: https://github.com/mcordell/grape_token_auth/wiki
+[demo-repo]: https://github.com/mcordell/grape_token_auth_demo
+[gta-setup]: http://blog.mikecordell.com/grape-token-auth/2015/09/15/setting-up-authentication-on-a-grape-api-with-grapetokenauth.html
+[secret]: http://www.jamesbadger.ca/2012/12/18/generate-new-secret-token/
