@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'grape', '~> 0.13.0'
+  spec.add_dependency 'grape', '>= 0.12.0'
   spec.add_dependency 'warden', '~> 1.2.3'
   spec.add_dependency 'bcrypt', '~> 3.0'
   spec.add_dependency 'mail',   '~> 2.0'
