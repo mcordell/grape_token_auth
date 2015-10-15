@@ -47,6 +47,10 @@ module GrapeTokenAuth
       warden.session_serializer.store(resource, scope)
     end
 
+    def remove_resource(scope)
+      warden.session_serializer.delete(scope)
+    end
+
     def first_authenticated_resource
       GrapeTokenAuth.configuration.mappings.each do |scope, _class|
         resource = fetch_stored_resource(scope)
