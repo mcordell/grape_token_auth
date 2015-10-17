@@ -35,11 +35,15 @@ gem 'grape_token_auth'
 
 And then execute:
 
+```
 $ bundle
+```
 
 Or install it yourself as:
 
+```
 $ gem install grape_token_auth
+```
 
 ## Quick-Start Setup
 
@@ -115,6 +119,10 @@ end
 
 **Note on Secret**: generate a unique secret using `rake secret` in a rails app
 or via [these directions][secret].
+
+In addition, if you are using the mail features in grape_token_auth you will
+want to set the appropriate configuration options. See the [mail wiki page][mail] for
+more information.
 
 
 ### Mounting authentication APIs
@@ -247,3 +255,4 @@ To run tests, you will need postgres to be setup and configured correctly.  Run
 [secret]: http://www.jamesbadger.ca/2012/12/18/generate-new-secret-token/
 [dta-contributors]: https://github.com/lynndylanhurley/devise_token_auth#callouts
 [devise]: https://github.com/plataformatec/devise
+[mail]: https://github.com/mcordell/grape_token_auth/wiki/Email
