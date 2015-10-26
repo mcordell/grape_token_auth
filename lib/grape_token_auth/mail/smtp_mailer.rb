@@ -8,6 +8,7 @@ module GrapeTokenAuth
       end
 
       def send_mail
+        set_smtp_config
         email.deliver
       end
 
@@ -31,6 +32,12 @@ module GrapeTokenAuth
       end
 
       protected
+
+      def set_smtp_config
+        config = GrapeTokenAuth.configuration.smtp_configuration
+        return if config.empty?
+        email.delivery_method(:smtp, config)
+      end
 
       def prepare_html
         part = ::Mail::Part.new
