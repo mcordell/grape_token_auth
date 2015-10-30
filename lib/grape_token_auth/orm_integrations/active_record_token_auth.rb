@@ -1,5 +1,3 @@
-require 'bcrypt'
-
 module GrapeTokenAuth
   module ActiveRecord
     module TokenAuth

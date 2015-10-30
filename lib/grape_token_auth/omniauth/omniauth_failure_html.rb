@@ -1,5 +1,3 @@
-require_relative './omniauth_html_base.rb'
-
 module GrapeTokenAuth
   class OmniAuthFailureHTML < OmniAuthHTMLBase
     FAILURE_MESSAGE = 'authFailure'

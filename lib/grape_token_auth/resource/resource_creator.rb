@@ -1,5 +1,3 @@
-require_relative 'resource_crud_base'
-
 module GrapeTokenAuth
   class ResourceCreator < ResourceCrudBase
     def create!
