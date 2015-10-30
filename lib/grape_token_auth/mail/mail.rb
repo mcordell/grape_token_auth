@@ -1,7 +1,3 @@
-require_relative 'message_base'
-require_relative 'messages/password_reset/password_reset_email'
-require_relative 'messages/confirmation/confirmation_email'
-
 module GrapeTokenAuth
   module Mail
     DEFAULT_MESSAGES = {

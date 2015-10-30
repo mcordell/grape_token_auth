@@ -1,5 +1,3 @@
-require_relative './omniauth_html_base.rb'
-
 module GrapeTokenAuth
   class OmniAuthSuccessHTML < OmniAuthHTMLBase
     extend Forwardable
