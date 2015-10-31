@@ -17,6 +17,14 @@ module GrapeTokenAuth
       }
     end
 
+    describe '#authed_with_token' do
+      it 'defaults to false' do
+        expect(described_class.new.authed_with_token).to eq false
+      end
+    end
+
+    it { is_expected.to respond_to :authed_with_token= }
+
     describe '.from_env' do
       context 'when passed a request environment hash' do
         let!(:data) { GrapeTokenAuth::AuthorizerData.from_env(env_hash) }
