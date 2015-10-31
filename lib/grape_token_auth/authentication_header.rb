@@ -13,6 +13,16 @@ module GrapeTokenAuth
       auth_headers_from_resource
     end
 
+    def self.build_auth_headers(token, uid)
+      {
+        'access-token' => token.to_s,
+        'expiry' => token.expiry.to_s,
+        'client' => token.client_id.to_s,
+        'token-type' => 'Bearer',
+        'uid' => uid.to_s
+      }
+    end
+
     private
 
     def_delegators :@data, :token, :client_id

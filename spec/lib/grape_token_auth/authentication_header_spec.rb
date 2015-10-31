@@ -8,7 +8,20 @@ module GrapeTokenAuth
     let(:client_id) { 'clientid' }
     subject { AuthenticationHeader.new(data, Time.now) }
 
-    describe '.headers' do
+    describe '.build_auth_headers' do
+      context 'when supplied a Token and a uid' do
+        let(:uid)   { 'some@uid.com' }
+        let(:token) { Token.new }
+
+        it 'returns a hash of the auth headers' do
+          headers = described_class.build_auth_headers(token, uid)
+          expect(headers).to match(auth_header_format(token.client_id))
+          expect(headers['uid']).to eq uid
+        end
+      end
+    end
+
+    describe '#headers' do
       context 'when a valid resource has been stored' do
         before do
           expect(data).to receive(:first_authenticated_resource)
