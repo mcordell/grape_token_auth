@@ -101,7 +101,7 @@ module GrapeTokenAuth
         tokens[token.client_id] = token.to_h.merge(last_token: last_token)
         self.save!
 
-        build_auth_header(token)
+        AuthenticationHeader.build_auth_headers(token, uid)
       end
 
       def valid_token?(token, client_id)
@@ -130,7 +130,8 @@ module GrapeTokenAuth
         token_hash[:updated_at] = Time.now
         expiry = token_hash[:expiry] || token_hash['expiry']
         save!
-        build_auth_header(Token.new(client_id, token, expiry))
+        AuthenticationHeader.build_auth_headers(
+          Token.new(client_id, token, expiry), uid)
       end
 
       # Copied out of Devise. Excludes the serialization blacklist.
@@ -294,15 +295,6 @@ module GrapeTokenAuth
         time > Time.now - GrapeTokenAuth.batch_request_buffer_throttle
       end
 
-      def build_auth_header(token)
-        {
-          'access-token' => token.to_s,
-          'expiry' => token.expiry.to_s,
-          'client' => token.client_id.to_s,
-          'token-type' => 'Bearer',
-          'uid' => uid.to_s
-        }
-      end
     end
   end
 end

@@ -1,5 +1,7 @@
 module GrapeTokenAuth
   class AuthorizerData
+    RACK_ENV_KEY = 'gta.auth_data'
+    attr_accessor :authed_with_token
     attr_reader :uid, :client_id, :token, :expiry, :warden
 
     def initialize(uid = nil, client_id = nil, token = nil,
@@ -9,13 +11,15 @@ module GrapeTokenAuth
       @token = token
       @expiry = expiry
       @warden = warden
+      @authed_with_token = false
     end
 
     def self.from_env(env)
-      new(
+      data = new(
         *data_from_env(env),
         env['warden']
       )
+      inject_into_env(data, env)
     end
 
     def self.data_from_env(env)
@@ -25,6 +29,14 @@ module GrapeTokenAuth
       Configuration::EXPIRY_KEY].map do |key|
         env[key] || env['HTTP_' + key.gsub('-', '_').upcase]
       end
+    end
+
+    def self.inject_into_env(data, env)
+      env[RACK_ENV_KEY] = data
+    end
+
+    def self.load_from_env_or_create(env)
+      env[RACK_ENV_KEY] || from_env(env)
     end
 
     def exisiting_warden_user(scope)

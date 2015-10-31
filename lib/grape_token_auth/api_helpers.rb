@@ -18,7 +18,7 @@ module GrapeTokenAuth
     end
 
     def authorizer_data
-      @authorizer_data ||= AuthorizerData.from_env(env)
+      @authorizer_data ||= AuthorizerData.load_from_env_or_create(env)
     end
 
     def authenticated?(scope = :user)

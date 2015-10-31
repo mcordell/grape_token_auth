@@ -3,23 +3,31 @@ require 'spec_helper'
 module GrapeTokenAuth
   RSpec.describe AuthorizerData do
     let(:warden) { double('warden') }
+    let(:uid)          { 'uidkey' }
+    let(:client)       { 'clientid' }
+    let(:access_token) { 'token' }
+    let(:uid)          { 'uidkey' }
+    let(:expiry)       { '2015-12-12' }
+    let(:env_hash) do
+      {
+        'access-token' => access_token,
+        'expiry'       => expiry,
+        'uid'          => uid,
+        'client'       => client
+      }
+    end
 
-    describe '#from_env' do
+    describe '#authed_with_token' do
+      it 'defaults to false' do
+        expect(described_class.new.authed_with_token).to eq false
+      end
+    end
+
+    it { is_expected.to respond_to :authed_with_token= }
+
+    describe '.from_env' do
       context 'when passed a request environment hash' do
-        let(:uid)          { 'uidkey' }
-        let(:client)       { 'clientid' }
-        let(:access_token) { 'token' }
-        let(:uid)          { 'uidkey' }
-        let(:expiry)       { '2015-12-12' }
-        let(:env_hash) do
-          {
-            'access-token' => access_token,
-            'expiry'       => expiry,
-            'uid'          => uid,
-            'client'       => client
-          }
-        end
-        let(:data) { GrapeTokenAuth::AuthorizerData.from_env(env_hash) }
+        let!(:data) { GrapeTokenAuth::AuthorizerData.from_env(env_hash) }
 
         it 'sets the uid' do
           expect(data.uid).to eq uid
@@ -35,6 +43,43 @@ module GrapeTokenAuth
 
         it 'sets the expiry' do
           expect(data.expiry).to eq expiry
+        end
+
+        it 'injects itself into the environment hash' do
+          expect(env_hash['gta.auth_data']).to eq data
+        end
+      end
+    end
+
+    describe '.inject_into_env' do
+      context 'when passed an object and a hash' do
+        it 'adds the object under the RACK_ENV_KEY constant' do
+          data = instance_double(described_class.to_s)
+          described_class.inject_into_env(data, env_hash)
+          expect(env_hash[described_class::RACK_ENV_KEY]).to eq data
+        end
+      end
+    end
+
+    describe '.load_from_env_or_create' do
+      context 'when passed an env hash' do
+        context 'that has previously had auth data injected into it' do
+          let(:data) { instance_double(described_class.to_s) }
+
+          before do
+            env_hash[described_class::RACK_ENV_KEY] = data
+          end
+
+          it 'returns the previous data' do
+            expect(described_class.load_from_env_or_create(env_hash)).to eq data
+          end
+        end
+
+        context 'that has not previously had auth data injected into it' do
+          it 'creates a new object from the environment data' do
+            expect(described_class).to receive(:from_env).with(env_hash)
+            described_class.load_from_env_or_create(env_hash)
+          end
         end
       end
     end

@@ -138,13 +138,7 @@ RSpec.describe 'Getting a protected route'  do
         proxy.set_user(signed_in_user, scope: :user)
       end
 
-      # no auth headers sent, testing that warden authenticates correctly.
       get protected_route, {}, {}
-
-      @resp_token       = response.headers['access-token']
-      @resp_client_id   = response.headers['client']
-      @resp_expiry      = response.headers['expiry']
-      @resp_uid         = response.headers['uid']
     end
 
     it 'should return success status' do
@@ -152,19 +146,61 @@ RSpec.describe 'Getting a protected route'  do
     end
 
     it 'should receive new token after successful request' do
-      expect(@resp_token).not_to be_nil
+      expect(response.headers['access-token']).not_to be_nil
     end
 
     it 'should set the token expiry in the auth header' do
-      expect(@resp_expiry).not_to be_nil
+      expect(response.headers['expiry']).not_to be_nil
     end
 
     it 'should return the client id in the auth header' do
-      expect(@resp_client_id).not_to be_nil
+      expect(response.headers['client']).not_to be_nil
     end
 
     it "should return the user's uid in the auth header" do
-      expect(@resp_uid).not_to be_nil
+      expect(response.headers['uid']).not_to be_nil
+    end
+  end
+
+  describe 'existing Warden authentication with ignored token data' do
+    let(:second_user) do
+      FactoryGirl.create(:user, :confirmed, email: 'second@example.com')
+    end
+    let(:response_uid)    { response.headers['uid'] }
+    let(:response_client) { response.headers['client'] }
+    let(:response_expiry) { response.headers['expiry'] }
+    let(:response_token)  { response.headers['access-token'] }
+
+    before do
+      Warden.on_next_request do |proxy|
+        proxy.set_user(second_user, scope: :user)
+      end
+
+      get protected_route, {}, auth_headers
+    end
+
+    it 'should return success status' do
+      expect(response.status).to eq 200
+    end
+
+    it 'should receive new token after successful request' do
+      expect(response_token).not_to be_nil
+    end
+
+    it 'should set the token expiry in the auth header' do
+      expect(response_expiry).not_to be_nil
+    end
+
+    it 'should return the client id in the auth header' do
+      expect(response_client).not_to be_nil
+    end
+
+    it "should not use the existing token's client" do
+      expect(response_client).not_to eq auth_headers['client']
+    end
+
+    it "should return the user's uid in the auth header" do
+      expect(response_uid).to eq second_user.uid
     end
   end
 end
