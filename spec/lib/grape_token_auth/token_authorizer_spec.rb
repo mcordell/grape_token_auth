@@ -80,7 +80,8 @@ module GrapeTokenAuth
             let(:data) do
               instance_double('GrapeTokenAuth::AuthorizerData',
                               token_prerequisites_present?: true, uid: 'good',
-                              client_id: 'client', token: 'good')
+                              client_id: 'client', token: 'good',
+                              authed_with_token: true)
             end
 
             before do
@@ -88,6 +89,7 @@ module GrapeTokenAuth
                 .and_return(user)
               expect(user).to receive(:valid_token?).with('good', 'client')
                 .and_return(true)
+              expect(data).to receive(:authed_with_token=).with(true)
             end
 
             it 'returns the user' do

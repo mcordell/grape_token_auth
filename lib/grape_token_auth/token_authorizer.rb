@@ -24,7 +24,7 @@ module GrapeTokenAuth
 
       load_user_from_uid
       return nil unless user_authenticated?
-
+      data.authed_with_token = true
       user
     end
 

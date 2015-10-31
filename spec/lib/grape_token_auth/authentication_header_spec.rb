@@ -3,7 +3,15 @@ require 'spec_helper'
 module GrapeTokenAuth
   RSpec.describe AuthenticationHeader do
     let(:scope)     { :user }
-    let(:data)      { instance_double('GrapeTokenAuth::AuthorizerData') }
+    let(:data)      do
+      instance_double('GrapeTokenAuth::AuthorizerData',
+                      first_authenticated_resource: resource,
+                      authed_with_token: authed_with_token,
+                      client_id: client_id)
+    end
+
+    let(:authed_with_token) { false }
+    let(:resource)  { nil }
     let(:user)      { FactoryGirl.create(:user) }
     let(:client_id) { 'clientid' }
     subject { AuthenticationHeader.new(data, Time.now) }
@@ -23,15 +31,17 @@ module GrapeTokenAuth
 
     describe '#headers' do
       context 'when a valid resource has been stored' do
-        before do
-          expect(data).to receive(:first_authenticated_resource)
-            .and_return(user)
-        end
+        let(:authed_with_token) { true }
+        let(:resource) { user }
 
         context 'with a valid client id ' do
-          before do
-            expect(data).to receive(:client_id).at_least(:once)
-              .and_return(client_id)
+          context 'and the resource was not authenticated with a token' do
+            let(:authed_with_token) { false }
+
+            it 'generates a new auth token' do
+              expect(user).to receive(:create_new_auth_token).and_call_original
+              subject.headers
+            end
           end
 
           context 'and it is set to not change headers on each request' do
