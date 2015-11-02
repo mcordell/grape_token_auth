@@ -38,8 +38,11 @@ module GrapeTokenAuth
         resource = find_resource(env, base.resource_scope)
 
         if resource
+          data = AuthorizerData.from_env(env)
+          data.remove_resource(base.resource_scope)
           resource.tokens.delete(env[Configuration::CLIENT_KEY])
-          resource.save
+          resource.save!
+
           status 200
         else
           status 404
