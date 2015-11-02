@@ -7,7 +7,7 @@ module GrapeTokenAuth
     def call(env)
       setup(env)
       begin
-        responses_with_auth_headers(*@app.call(env))
+        response_with_auth_headers(*@app.call(env))
       rescue Unauthorized
         return unauthorized
       end
@@ -30,7 +30,7 @@ module GrapeTokenAuth
       @authorizer_data  = AuthorizerData.from_env(env)
     end
 
-    def responses_with_auth_headers(status, headers, response)
+    def response_with_auth_headers(status, headers, response)
       auth_headers = AuthenticationHeader.new(authorizer_data, request_start)
       [
         status,
