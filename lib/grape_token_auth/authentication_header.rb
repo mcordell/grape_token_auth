@@ -9,7 +9,7 @@ module GrapeTokenAuth
     end
 
     def headers
-      return {} unless resource && resource.valid? && client_id
+      return {} unless resource && resource.valid? && client_id && !skip_auth_headers
       auth_headers_from_resource
     end
 
@@ -27,7 +27,7 @@ module GrapeTokenAuth
 
     attr_reader :request_start, :resource, :data
 
-    def_delegators :data, :token, :client_id
+    def_delegators :data, :token, :client_id, :skip_auth_headers
 
     def auth_headers_from_resource
       auth_headers = {}

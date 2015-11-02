@@ -1,7 +1,7 @@
 module GrapeTokenAuth
   class AuthorizerData
     RACK_ENV_KEY = 'gta.auth_data'
-    attr_accessor :authed_with_token
+    attr_accessor :authed_with_token, :skip_auth_headers
     attr_reader :uid, :client_id, :token, :expiry, :warden
 
     def initialize(uid = nil, client_id = nil, token = nil,
@@ -12,6 +12,7 @@ module GrapeTokenAuth
       @expiry = expiry
       @warden = warden
       @authed_with_token = false
+      @skip_auth_headers = false
     end
 
     def self.from_env(env)

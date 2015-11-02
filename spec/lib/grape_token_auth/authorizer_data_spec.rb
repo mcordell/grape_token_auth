@@ -23,6 +23,12 @@ module GrapeTokenAuth
       end
     end
 
+    describe '#skip_auth_headers' do
+      it 'defaults to false' do
+        expect(described_class.new.skip_auth_headers).to eq false
+      end
+    end
+
     it { is_expected.to respond_to :authed_with_token= }
 
     describe '.from_env' do

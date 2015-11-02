@@ -7,10 +7,13 @@ module GrapeTokenAuth
       instance_double('GrapeTokenAuth::AuthorizerData',
                       first_authenticated_resource: resource,
                       authed_with_token: authed_with_token,
-                      client_id: client_id)
+                      client_id: client_id,
+                      skip_auth_headers: skip_auth_headers
+                     )
     end
 
     let(:authed_with_token) { false }
+    let(:skip_auth_headers) { false }
     let(:resource)  { nil }
     let(:user)      { FactoryGirl.create(:user) }
     let(:client_id) { 'clientid' }
@@ -41,6 +44,14 @@ module GrapeTokenAuth
             it 'generates a new auth token' do
               expect(user).to receive(:create_new_auth_token).and_call_original
               subject.headers
+            end
+          end
+
+          context 'when skip_auth_headers is set on the data object' do
+            let(:skip_auth_headers) { true }
+
+            it 'returns an empty hash' do
+              expect(subject.headers).to eq({})
             end
           end
 
