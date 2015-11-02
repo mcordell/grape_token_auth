@@ -1,6 +1,10 @@
 module GrapeTokenAuth
   describe SessionsAPI do
-    let(:data) { JSON.parse(response.body) }
+    let(:data)           { JSON.parse(response.body) }
+    let(:resp_uid)       { response.headers['uid'] }
+    let(:resp_client_id) { response.headers['client'] }
+    let(:resp_token)     { response.headers['access-token'] }
+
     context 'existing user' do
       let(:existing_user) do
         FactoryGirl.create(:user, :confirmed,
@@ -12,10 +16,6 @@ module GrapeTokenAuth
         before do
           xhr :post, '/auth/sign_in', email: existing_user.email,
                                       password: 'secret123'
-
-          @resp_token     = response.headers['access-token']
-          @resp_client_id = response.headers['client']
-          @resp_uid       = response.headers['uid']
           existing_user.reload
         end
 
@@ -28,17 +28,17 @@ module GrapeTokenAuth
         end
 
         it 'receives a token from the user' do
-          token = existing_user.tokens[@resp_client_id]['token']
-          result = BCrypt::Password.new(token) == @resp_token
+          token = existing_user.tokens[resp_client_id]['token']
+          result = BCrypt::Password.new(token) == resp_token
           expect(result).to eq true
         end
 
         it 'recieves a client id' do
-          expect(existing_user.tokens.keys).to include(@resp_client_id)
+          expect(existing_user.tokens.keys).to include(resp_client_id)
         end
 
         it "sets user's uid in the auth header" do
-          expect(@resp_uid).to eq existing_user.uid
+          expect(resp_uid).to eq existing_user.uid
         end
 
         skip 'trackable' do
@@ -96,6 +96,12 @@ module GrapeTokenAuth
         it 'destroys the token' do
           existing_user.reload
           expect(existing_user.tokens[auth_headers['client']]).to be_nil
+        end
+
+        it 'does not return auth headers' do
+          expect(resp_token).to be_nil
+          expect(resp_uid).to be_nil
+          expect(resp_client_id).to be_nil
         end
       end
 

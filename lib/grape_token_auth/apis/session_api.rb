@@ -2,8 +2,8 @@ module GrapeTokenAuth
   module SessionsAPICore
     def self.included(base)
       base.helpers do
-        def find_resource(env, mapping)
-          token_authorizer = TokenAuthorizer.new(AuthorizerData.from_env(env))
+        def find_resource(data, mapping)
+          token_authorizer = TokenAuthorizer.new(data)
           token_authorizer.find_resource(mapping)
         end
       end
@@ -23,7 +23,7 @@ module GrapeTokenAuth
           throw(:warden, errors: { errors: [error_message], status: 'error' })
         end
 
-        data = AuthorizerData.from_env(env)
+        data = AuthorizerData.load_from_env_or_create(env)
         env['rack.session'] ||= {}
         data.store_resource(resource, base.resource_scope)
         auth_header = AuthenticationHeader.new(data, start_time)
@@ -35,10 +35,12 @@ module GrapeTokenAuth
       end
 
       base.delete '/sign_out' do
-        resource = find_resource(env, base.resource_scope)
+        data = AuthorizerData.load_from_env_or_create(env)
+        resource = find_resource(data, base.resource_scope)
 
         if resource
           resource.tokens.delete(env[Configuration::CLIENT_KEY])
+          data.skip_auth_headers = true
           resource.save
           status 200
         else
