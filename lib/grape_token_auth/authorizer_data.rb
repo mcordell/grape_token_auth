@@ -24,9 +24,9 @@ module GrapeTokenAuth
 
     def self.data_from_env(env)
       [Configuration::UID_KEY,
-      Configuration::CLIENT_KEY,
-      Configuration::ACCESS_TOKEN_KEY,
-      Configuration::EXPIRY_KEY].map do |key|
+       Configuration::CLIENT_KEY,
+       Configuration::ACCESS_TOKEN_KEY,
+       Configuration::EXPIRY_KEY].map do |key|
         env[key] || env['HTTP_' + key.gsub('-', '_').upcase]
       end
     end
