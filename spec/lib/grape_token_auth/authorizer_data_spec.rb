@@ -130,8 +130,7 @@ module GrapeTokenAuth
       let(:resource) { instance_double('User') }
       context 'with a resource and a scope' do
         before do
-          expect(warden).to receive_message_chain(:session_serializer, :store)
-            .with(resource, scope)
+          expect(warden).to receive(:set_user).with(resource, scope: scope, store: false)
         end
 
         it 'stores the resource with warden' do
@@ -147,8 +146,7 @@ module GrapeTokenAuth
 
       context 'with a scope' do
         before do
-          expect(warden).to receive_message_chain(:session_serializer, :fetch)
-            .with(scope).and_return(resource)
+          expect(warden).to receive(:user).with(scope)
         end
 
         it 'returns the resource from warden for that scope' do
@@ -164,16 +162,12 @@ module GrapeTokenAuth
         let(:session_serializer) { double('serializer') }
         before do
           GrapeTokenAuth.configuration.mappings = { user: User, man: nil }
-          expect(warden).to receive(:session_serializer)
-            .and_return(session_serializer).at_least(:once)
-          allow(session_serializer).to receive(:fetch)
-            .with(:man).and_return(nil)
+          allow(warden).to receive(:user).with(:man).and_return(nil)
         end
 
         context 'and there is an authenticated user' do
           before do
-            expect(session_serializer).to receive(:fetch)
-              .with(:user).and_return(resource)
+            allow(warden).to receive(:user).with(:user).and_return(resource)
           end
 
           it 'returns the signed in user' do
@@ -183,8 +177,8 @@ module GrapeTokenAuth
 
         context 'and there is no signed in user' do
           before do
-            expect(session_serializer).to receive(:fetch)
-              .with(:user).and_return(nil)
+            expect(warden).to receive(:user).with(:user)
+              .and_return(nil)
           end
 
           it 'returns nil' do

@@ -53,11 +53,11 @@ module GrapeTokenAuth
     end
 
     def fetch_stored_resource(scope)
-      warden.session_serializer.fetch(scope)
+      warden.user(scope)
     end
 
     def store_resource(resource, scope)
-      warden.session_serializer.store(resource, scope)
+      warden.set_user(resource, scope: scope, store: false)
     end
 
     def first_authenticated_resource
