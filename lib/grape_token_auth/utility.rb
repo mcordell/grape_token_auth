@@ -8,5 +8,9 @@ module GrapeTokenAuth
       end
       nil
     end
+
+    def self.humanize(snake_cased)
+      snake_cased.to_s.split('_').collect(&:capitalize).join
+    end
   end
 end

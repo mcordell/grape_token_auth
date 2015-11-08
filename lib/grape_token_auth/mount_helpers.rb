@@ -66,7 +66,7 @@ module GrapeTokenAuth
       def create_api_subclass(class_name, mapping)
         resource_class = GrapeTokenAuth.configuration.scope_to_class(mapping)
         fail ScopeUndefinedError.new(nil, mapping) unless resource_class
-        scope_name = mapping.to_s.split('_').collect(&:capitalize).join
+        scope_name = Utility.humanize(mapping)
         api = create_grape_api
         api.instance_variable_set(:@resource_scope, mapping)
         api.include(GrapeTokenAuth.const_get("#{class_name}Core"))
