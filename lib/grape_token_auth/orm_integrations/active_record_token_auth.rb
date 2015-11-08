@@ -54,7 +54,7 @@ module GrapeTokenAuth
           end
 
           def get(key)
-            find(key).first
+            find(key)
           end
 
           attr_writer :reset_token_lifespan

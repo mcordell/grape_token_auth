@@ -503,5 +503,15 @@ module GrapeTokenAuth
         end
       end
     end
+
+    describe '.get' do
+      context 'when passed an id' do
+        it 'gets the resource via find' do
+          id = 1
+          expect(User).to receive(:find).with(id)
+          User.get(id)
+        end
+      end
+    end
   end
 end
