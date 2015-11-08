@@ -11,14 +11,6 @@ module GrapeTokenAuth
         return nil unless messages.key?(message_type)
         messages[message_type].new(opts)
       end
-
-      private
-
-      def valid_email_options?(opts)
-        to_address = opts[:to] || opts['to']
-        return false unless to_address
-        true
-      end
     end
   end
 end
