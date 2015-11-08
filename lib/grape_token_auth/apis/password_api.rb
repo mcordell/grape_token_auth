@@ -10,10 +10,6 @@ module GrapeTokenAuth
           throw(:warden, errors: message)
         end
 
-        def resource_class
-          @rescource_class ||= scope_to_class(resource_scope)
-        end
-
         def bad_request(messages, code = 422)
           status(code)
           { 'status' => 'error', 'error' => messages.join(',') }
