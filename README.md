@@ -1,10 +1,6 @@
 # GrapeTokenAuth
 [![Code Climate GPA][11]][12] [![Test Coverage][13]][14] [![Circle CI][15]][16]
 
-> __This gem is in active development__ but approaching a 0.1.0 release. If you
-are interested in helping out, please clone the release candidate and submit issues
-and PRs to help get it into a production-ready state!
-
 GrapeTokenAuth is a token authentication solution for grape. It is compatible
 with [ng-token-auth][1] (for _angular_) and [j-toker][2] (for _jQuery_), and is
 meant as a [grape][4] (rather than _rails_) version of [devise_token_auth][3]. As
