@@ -37,6 +37,7 @@ require 'grape_token_auth/token'
 require 'grape_token_auth/token_authentication'
 require 'grape_token_auth/token_authorizer'
 require 'grape_token_auth/unauthorized_middleware'
+require 'grape_token_auth/utility'
 require 'grape_token_auth/version'
 
 module GrapeTokenAuth

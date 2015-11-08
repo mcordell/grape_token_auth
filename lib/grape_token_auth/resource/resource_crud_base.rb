@@ -26,18 +26,9 @@ module GrapeTokenAuth
 
     def permitted_params
       permitted_attributes.each_with_object({}) do |key, permitted|
-        value = find_with_indifference(params, key)
+        value = Utility.find_with_indifference(params, key)
         permitted[key] = value if value
       end
-    end
-
-    def find_with_indifference(hash, key)
-      if hash.key?(key.to_sym)
-        return hash[key.to_sym]
-      elsif hash.key?(key.to_s)
-        return hash[key.to_s]
-      end
-      nil
     end
   end
 end

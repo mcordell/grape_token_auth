@@ -33,7 +33,7 @@ module GrapeTokenAuth
     def unpack_params
       [:email, :password_confirmation, :password]
         .each_with_object({}) do |key, unpacked|
-        unpacked[key] = find_with_indifference(params, key)
+        unpacked[key] = Utility.find_with_indifference(params, key)
       end
     end
 

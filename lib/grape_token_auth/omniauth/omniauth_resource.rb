@@ -82,7 +82,7 @@ module GrapeTokenAuth
       scoped_list = whitelist[scope] || whitelist[scope.to_s]
       return unless scoped_list
       scoped_list.each_with_object({}) do |key, permitted|
-        value = find_with_indifference(omniauth_params, key)
+        value = Utility.find_with_indifference(omniauth_params, key)
         permitted[key] = value if value
       end
     end
@@ -91,15 +91,6 @@ module GrapeTokenAuth
       klass = resource.class
       @scope ||= GrapeTokenAuth.configuration.mappings
                  .find { |k,v| v == klass }.try(:[], 0)
-    end
-
-    def find_with_indifference(hash, key)
-      if hash.key?(key.to_sym)
-        return hash[key.to_sym]
-      elsif hash.key?(key.to_s)
-        return hash[key.to_s]
-      end
-      nil
     end
 
     def sync_token_to_resource
