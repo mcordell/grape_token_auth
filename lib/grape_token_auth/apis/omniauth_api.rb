@@ -20,10 +20,6 @@ module GrapeTokenAuth
           html
         end
 
-        def sign_in_resource(resource, scope)
-          request.env['warden'].session_serializer.store(resource, scope)
-        end
-
         def redirect_or_render(success_html)
           if %w(inAppBrowser newWindow).include?(success_html.window_type)
             render_html(success_html.render_html)
@@ -80,7 +76,8 @@ module GrapeTokenAuth
                                                  auth_hash,
                                                  omniauth_params)
         if success_html.persist_oauth_attributes!
-          sign_in_resource(success_html.resource, base.resource_scope)
+          data = AuthorizerData.load_from_env_or_create(env)
+          data.store_resource(success_html.resource, base.resource_scope)
           redirect_or_render(success_html)
         else
           status 500

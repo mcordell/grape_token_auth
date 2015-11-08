@@ -53,15 +53,6 @@ module GrapeTokenAuth
             confirmable
           end
 
-          def serialize_into_session(record)
-            [record.to_key, record.authenticatable_salt]
-          end
-
-          def serialize_from_session(key, salt)
-            record = get(key)
-            record if record && record.authenticatable_salt == salt
-          end
-
           def get(key)
             find(key).first
           end
