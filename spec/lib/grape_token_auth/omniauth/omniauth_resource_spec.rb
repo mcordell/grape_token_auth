@@ -111,7 +111,7 @@ module GrapeTokenAuth
 
           before do
             GrapeTokenAuth.configure do |config|
-              config.param_white_list = { user: [:operating_thetan] }
+              config.param_white_list = { user: [:operating_thetan, :height] }
             end
             @resp = oauth_resource.persist_oauth_attributes!
           end
@@ -146,9 +146,15 @@ module GrapeTokenAuth
           end
 
           context 'with a omniauth_params with additional attributes' do
-            let(:oauth_params) { { 'operating_thetan' => 7, 'admin' => 1 } }
+            let(:oauth_params) do
+              { 'operating_thetan' => 7, 'admin' => 1, height: '70cm' }
+            end
 
-            it 'sets params on the whitelist' do
+            it 'sets params from the whitelist' do
+              expect(resource.height).to eq '70cm'
+            end
+
+            it 'sets params from the whitelist whether symbol or string' do
               expect(resource.operating_thetan).to eq 7
             end
 
