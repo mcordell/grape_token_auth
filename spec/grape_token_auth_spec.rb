@@ -61,7 +61,7 @@ describe GrapeTokenAuth do
     end
   end
 
-  describe '#setup!' do
+  describe '.setup!' do
     context 'when passed a block' do
       before do
         GrapeTokenAuth.setup! do |config|
@@ -78,6 +78,39 @@ describe GrapeTokenAuth do
       GrapeTokenAuth.setup!
       strategies = Grape::Middleware::Auth::Strategies.auth_strategies.keys
       expect(strategies).to include(:grape_devise_token_auth)
+    end
+  end
+
+  describe '.setup_warden!' do
+    context 'when passed an instance of rack builder' do
+      let(:rack_builder) { Rack::Builder.new }
+
+      before do
+        described_class.setup_warden!(rack_builder)
+      end
+
+      it 'sets the failure app to GrapeTokenAuth::UnauthorizedMiddleware' do
+        rack_builder.run(lambda do |e|
+          expect(e['warden'].config.failure_app)
+            .to eq GrapeTokenAuth::UnauthorizedMiddleware
+        end)
+        rack_builder.call(env_with_params)
+      end
+
+      it 'sets the default scope to :user' do
+        rack_builder.run(lambda do |e|
+          expect(e['warden'].config.default_scope).to eq :user
+        end)
+        rack_builder.call(env_with_params)
+      end
+    end
+
+    def env_with_params(path = '/', params = {}, env = {})
+      method = params.delete(:method) || 'GET'
+      env = { 'HTTP_VERSION' => '1.1',
+              'REQUEST_METHOD' => "#{method}" }.merge(env)
+      Rack::MockRequest.env_for("#{path}?#{Rack::Utils.build_query(params)}",
+                                env)
     end
   end
 end
