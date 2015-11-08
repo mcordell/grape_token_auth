@@ -14,8 +14,7 @@ module GrapeTokenAuth
       end
 
       def mount_confirmation(opts = {})
-        opts[:to] = opts[:to].to_s.chomp('/') + '/confirmation'
-        mount_api('ConfirmationAPI', opts)
+        mount_api('ConfirmationAPI', set_mount_point(opts, '/confirmation'))
       end
 
       def mount_token_validation(opts = {})
@@ -23,15 +22,14 @@ module GrapeTokenAuth
       end
 
       def mount_password_reset(opts = {})
-        opts[:to] = opts[:to].to_s.chomp('/') + '/password'
-        mount_api('PasswordAPI', opts)
+        mount_api('PasswordAPI', set_mount_point(opts, '/password'))
       end
 
       def mount_omniauth(opts = {})
-        path = opts[:to] || '/'
+        path = opts.fetch(:to, '/')
 
-        if mapping = opts[:for]
-          api = create_api_subclass('OmniAuthAPI', mapping)
+        if opts.key?(:for)
+          api = create_api_subclass('OmniAuthAPI', opts[:for])
         else
           api = GrapeTokenAuth::OmniAuthAPI
         end
@@ -48,10 +46,15 @@ module GrapeTokenAuth
 
       private
 
-      def mount_api(api_class_name, opts)
-        path = opts[:to] || '/'
+      def set_mount_point(opts, route)
+        opts[:to] = "#{opts[:to].to_s.chomp('/')}#{route}"
+        opts
+      end
 
-        if opts[:for]
+      def mount_api(api_class_name, opts)
+        path = opts.fetch(:to, '/')
+
+        if opts.key?(:for)
           api = create_api_subclass(api_class_name, opts[:for])
         else
           api = GrapeTokenAuth.const_get(api_class_name)
@@ -64,16 +67,18 @@ module GrapeTokenAuth
         resource_class = GrapeTokenAuth.configuration.scope_to_class(mapping)
         fail ScopeUndefinedError.new(nil, mapping) unless resource_class
         scope_name = mapping.to_s.split('_').collect(&:capitalize).join
-        klass = Class.new(Grape::API) do
+        api = create_grape_api
+        api.instance_variable_set(:@resource_scope, mapping)
+        api.include(GrapeTokenAuth.const_get("#{class_name}Core"))
+        GrapeTokenAuth.const_set("#{scope_name}#{class_name}", api)
+      end
+
+      def create_grape_api
+        Class.new(Grape::API) do
           class << self
-            def resource_scope
-              @resource_scope
-            end
+            attr_reader :resource_scope
           end
         end
-        klass.instance_variable_set(:@resource_scope, mapping)
-        klass.include(GrapeTokenAuth.const_get("#{class_name}Core"))
-        GrapeTokenAuth.const_set("#{scope_name}#{class_name}", klass)
       end
     end
   end
