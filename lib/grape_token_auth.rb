@@ -7,6 +7,9 @@ require 'grape_token_auth/mail/message_base'
 require 'grape_token_auth/omniauth/omniauth_html_base'
 require 'grape_token_auth/resource/resource_crud_base'
 
+require 'grape_token_auth/apis/registration/endpoint_definer'
+require 'grape_token_auth/apis/registration/helpers'
+
 require 'grape_token_auth/api_helpers'
 require 'grape_token_auth/apis/confirmation_api'
 require 'grape_token_auth/apis/omniauth_api'

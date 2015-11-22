@@ -2,8 +2,8 @@ module GrapeTokenAuth
   class ResourceCrudBase
     attr_reader :resource, :errors, :scope
 
-    def initialize(params, configuration, scope = :user)
-      @configuration = configuration
+    def initialize(params, configuration = nil, scope = :user)
+      @configuration = configuration || GrapeTokenAuth.configuration
       @params = params
       @errors = []
       @scope = scope

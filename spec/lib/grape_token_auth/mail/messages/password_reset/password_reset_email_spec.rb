@@ -5,6 +5,7 @@ module GrapeTokenAuth::Mail
         c.default_url_options = { host: 'test.com', port: 4000 }
       end
     end
+
     let(:minimum_opts) { { to: 'test@example.com' } }
     let(:opts) { minimum_opts }
 
