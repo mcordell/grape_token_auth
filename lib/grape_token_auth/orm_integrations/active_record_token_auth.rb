@@ -81,8 +81,8 @@ module GrapeTokenAuth
       def password_confirmation_matches
         return if password.present? && password_confirmation.present? &&
                   password == password_confirmation
-        errors.add(:password_confirmation,
-                   'password confirmation does not match')
+        errors.add(:base,
+                   'password and password confirmation do not match')
       end
 
       def create_new_auth_token(client_id = nil)
