@@ -79,7 +79,6 @@ In _rails_, you will need to setup warden as so:
 config.middleware.insert_after ActionDispatch::Flash, Warden::Manager do |manager|
   manager.failure_app = GrapeTokenAuth::UnauthorizedMiddleware
   manager.default_scope = :user
-  GrapeTokenAuth.configure_warden(manager)
 end
 ```
 
@@ -145,7 +144,7 @@ class TestApp < Grape::API
   # ...
 
   mount_registration(to: '/auth', for: :user)
-  mount_session(to: '/auth', for: :user)
+  mount_sessions(to: '/auth', for: :user)
   mount_token_validation(to: '/auth', for: :user)
   mount_confirmation(to: '/auth', for: :user)
 
