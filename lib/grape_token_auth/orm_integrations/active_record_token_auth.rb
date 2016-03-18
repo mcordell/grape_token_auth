@@ -14,6 +14,14 @@ module GrapeTokenAuth
                                          message: 'invalid email' }, allow_blank: true
         base.before_update :synchronize_email_and_uid
 
+        unless base.respond_to? :case_insensitive_keys
+          base.class.send(:attr_reader, :case_insensitive_keys)
+        end
+
+        unless base.respond_to? :case_insensitive_keys=
+          base.class.send(:attr_writer, :case_insensitive_keys)
+        end
+
         class << base
           def exists_in_column?(column, value)
             where(column => value).count > 0
@@ -59,7 +67,6 @@ module GrapeTokenAuth
 
           attr_writer :reset_token_lifespan
           attr_writer :confirmation_token_lifespan
-          attr_accessor :case_insensitive_keys
         end
       end
 
