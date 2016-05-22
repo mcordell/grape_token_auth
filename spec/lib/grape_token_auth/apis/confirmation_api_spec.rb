@@ -54,11 +54,14 @@ module GrapeTokenAuth
       end
 
       describe 'failure' do
+        let(:body) { JSON.parse(response.body) }
+        
         it 'does not confirm the user' do
-          expect do
-            xhr :get, '/auth/confirmation', confirmation_token: 'bogus'
-          end.to raise_error # unclear what, if any, error should occur
+          xhr :get, '/auth/confirmation', confirmation_token: 'bogus'
+
           expect(new_user).not_to be_confirmed
+          expect(response.status).to eq 404
+          expect(body['errors']).to match /unable to find confirmation/i
         end
       end
     end

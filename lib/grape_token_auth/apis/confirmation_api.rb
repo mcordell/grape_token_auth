@@ -10,7 +10,7 @@ module GrapeTokenAuth
           base.resource_scope)
         resource = resource_class.confirm_by_token(params[:confirmation_token])
 
-        if resource.persisted?
+        if resource && resource.persisted?
           token = Token.new
 
           resource.tokens[token.client_id] = {
