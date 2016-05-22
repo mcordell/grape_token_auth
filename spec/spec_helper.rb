@@ -74,8 +74,8 @@ end
 RSpec::Matchers.define :have_route do |route_method, route_path|
   match do |grape_api|
     !grape_api.routes.select do |route|
-      route.route_path == route_path &&
-        route.route_method == route_method
+      route.path == route_path &&
+        route.request_method == route_method
     end.empty?
   end
 end
