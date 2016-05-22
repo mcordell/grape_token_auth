@@ -6,7 +6,14 @@ module GrapeTokenAuth
     def self.included(base)
       base.helpers do
         def auth_hash
-          @auth_hash ||= request.env['rack.session'].delete('gta.omniauth.auth')
+          @auth_hash ||= begin
+            hash = request.env['rack.session'].delete('gta.omniauth.auth')
+
+            # While using Grape on Rails, #session is an ActionDispatch::Request::Session class,
+            # which does not preserve OmniAuth::AuthHash class @ 'gta.omniauth.auth' key,
+            # converting it to Hash. Restoring
+            hash.kind_of?(::OmniAuth::AuthHash) ? hash : ::OmniAuth::AuthHash.new(hash)
+          end
         end
 
         def omniauth_params
