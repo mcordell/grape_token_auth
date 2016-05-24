@@ -32,7 +32,7 @@ module GrapeTokenAuth
         redirect_url ||= GrapeTokenAuth.configuration.default_password_reset_url
         throw_unauthorized('Missing redirect url.') unless redirect_url
         resource = ResourceFinder.find(base.resource_scope, params)
-        edit_path = routes[0].route_path.gsub(/\(.*\)/, '') + "/edit"
+        edit_path = routes[0].path.gsub(/\(.*\)/, '') + "/edit"
         if resource
           resource.send_reset_password_instructions(
             provider: 'email',
