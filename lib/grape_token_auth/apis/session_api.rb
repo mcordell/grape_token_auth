@@ -39,7 +39,10 @@ module GrapeTokenAuth
         resource = find_resource(data, base.resource_scope)
 
         if resource
-          resource.tokens.delete(env[Configuration::CLIENT_KEY])
+          # Rails prepends 'CLIENT' header with 'HTTP_' prefix, so to make sure we address to
+          # proper header, better use normalized version stored at <tt>data</tt>
+          # See more: http://stackoverflow.com/a/26936364/1592582
+          resource.tokens.delete(data.client_id)
           data.skip_auth_headers = true
           resource.save
           status 200

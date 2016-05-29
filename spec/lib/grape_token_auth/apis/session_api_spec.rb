@@ -95,7 +95,7 @@ module GrapeTokenAuth
 
         it 'destroys the token' do
           existing_user.reload
-          expect(existing_user.tokens[auth_headers['client']]).to be_nil
+          expect(existing_user.tokens).to be_empty
         end
 
         it 'does not return auth headers' do
