@@ -33,7 +33,7 @@ module GrapeTokenAuth
     attr_reader :resource_class, :user, :resource
 
     def initialize_resource_class(scope)
-      @resource_class =  GrapeTokenAuth.configuration.scope_to_class(scope)
+      @resource_class = GrapeTokenAuth.configuration.scope_to_class(scope)
     end
 
     def load_user_from_uid
