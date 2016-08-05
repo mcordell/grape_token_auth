@@ -26,10 +26,7 @@ module GrapeTokenAuth
         data = AuthorizerData.load_from_env_or_create(env)
         env['rack.session'] ||= {}
         data.store_resource(resource, base.resource_scope)
-        auth_header = AuthenticationHeader.new(data, start_time)
-        auth_header.headers.each do |key, value|
-          header key.to_s, value.to_s
-        end
+        data.authed_with_token = false
         status 200
         present data: resource
       end
