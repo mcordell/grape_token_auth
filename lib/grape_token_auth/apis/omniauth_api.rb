@@ -113,7 +113,9 @@ module GrapeTokenAuth
     helpers do
       def redirect_route_from_api(api, provider)
         prefix = api.routes.find do |r|
-          %r{/:provider/callback}.match(r.path)
+          minor = /0\.(\d\d).\d+/.match(Grape::VERSION)[1].to_i
+          path = minor >= 16 ? r.origin : r.path
+          %r{/:provider/callback}.match(path)
         end.path.split(%r{/:provider})[0]
         Pathname.new(prefix).join(provider, 'callback.json').to_s
       end
