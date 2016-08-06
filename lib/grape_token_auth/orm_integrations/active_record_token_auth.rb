@@ -192,7 +192,7 @@ module GrapeTokenAuth
 
       def build_auth_url(url, params)
         url = URI(url)
-        expiry = tokens[params[:client_id]][:expiry]
+        expiry = tokens[params[:client_id]].with_indifferent_access[:expiry]
         url.query = params.merge(uid: uid, expiry: expiry).to_query
         url.to_s
       end
