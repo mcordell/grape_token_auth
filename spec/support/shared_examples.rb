@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 RSpec.shared_examples 'a grape token auth email' do
   it { is_expected.to respond_to :text_body }
   it { is_expected.to respond_to :html_body }

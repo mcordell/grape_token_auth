@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   module ActiveRecord
     module TokenAuth

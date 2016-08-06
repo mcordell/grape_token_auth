@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   describe RegistrationAPI do
     let(:data) { JSON.parse(response.body) }

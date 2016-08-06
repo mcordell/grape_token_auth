@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   describe ApiHelpers do
     context 'with mappings defined' do

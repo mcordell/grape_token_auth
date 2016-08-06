@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   # Module that contains the majority of the OmniAuth functionality. This module
   # can be included in a Grape::API class that defines a resource_scope and

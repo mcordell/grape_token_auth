@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   # Contains the major functionality of TokenValidation
   module TokenValidationAPICore

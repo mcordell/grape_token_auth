@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 root_dir = File.expand_path('../models', __FILE__)
 Dir.glob(root_dir + '/*.rb').each { |path| require path }
 

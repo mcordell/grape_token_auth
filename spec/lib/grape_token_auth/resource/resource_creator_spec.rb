@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   describe ResourceCreator do
     let(:configuration) { instance_double(Configuration) }

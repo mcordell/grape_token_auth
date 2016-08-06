@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   RSpec.describe OmniAuthSuccessHTML do
     let(:oauth_resource) { instance_double('GrapeTokenAuth::OmniAuthResource') }

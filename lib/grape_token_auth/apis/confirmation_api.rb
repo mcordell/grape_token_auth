@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   # Module that contains the majority of the email confirming functionality.
   # This module can be included in a Grape::API class that defines a

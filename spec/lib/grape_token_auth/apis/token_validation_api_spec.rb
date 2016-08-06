@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   describe TokenValidationAPI do
     let(:user)         { FactoryGirl.create(:user) }

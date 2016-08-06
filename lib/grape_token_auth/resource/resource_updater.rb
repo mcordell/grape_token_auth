@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   class ResourceUpdater < ResourceCrudBase
     def initialize(resource, params, configuration, scope = :user)

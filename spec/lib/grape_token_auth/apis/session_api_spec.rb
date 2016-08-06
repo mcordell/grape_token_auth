@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   describe SessionsAPI do
     let(:data)           { JSON.parse(response.body) }

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   # Look up tokens are a type of token that allows searching by that token. This
   # is useful in use cases such as confirmation tokens. These type of tokens are
