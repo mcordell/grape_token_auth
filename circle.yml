@@ -1,6 +1,11 @@
+dependencies:
+  override:
+    - 'rvm-exec 2.2.0 bundle install --gemfile=Gemfile.2.2.0'
+    - 'rvm-exec 2.3.1 bundle install'
 database:
   override:
     - bundle exec rake db:setup; bundle exec rake db:reset
 test:
   override:
-    - ./bin/rspec
+    - 'BUNDLE_GEMFILE=Gemfile.2.2.0 rvm-exec 2.2.0 bundle exec rspec'
+    - 'rvm-exec 2.3.1 bundle exec rspec'
