@@ -154,6 +154,62 @@ module GrapeTokenAuth
       describe 'included class methods' do
         subject { User }
 
+        describe '.case_insensitive_keys' do
+          before { User.instance_variable_set(:@case_insensitive_keys, nil) }
+
+          subject { User.case_insensitive_keys }
+
+          context 'when Devise is defined' do
+            devise_keys = [:something]
+            before(:all) do
+              if Object.const_defined?(:Devise)
+                @already_defined = true
+              else
+                mod = Module.new
+                mod.class_eval <<-EOD
+                  @@case_insensitive_keys = #{devise_keys}
+                  mattr_accessor :case_insensitive_keys
+                EOD
+                Object.const_set(:Devise, mod)
+              end
+            end
+
+            it { is_expected.to eq devise_keys }
+
+            describe 'setting the case_insensitive_keys=' do
+              let(:override) { [:x] }
+              before { User.case_insensitive_keys = override }
+
+              it 'overrides Devise' do
+                is_expected.to eq override
+              end
+
+              it 'does not modify Devise' do
+                expect(Devise.case_insensitive_keys).to eq devise_keys
+              end
+            end
+
+            after(:all) do
+              Object.send(:remove_const, :Devise) unless @already_defined
+            end
+          end
+
+          context 'when Devise is not defined' do
+            it 'defaults to [:email]' do
+              is_expected.to eq [:email]
+            end
+
+            context 'when case_insensitive_keys has been set' do
+              let(:set_value) { [:a] }
+              before { User.case_insensitive_keys = set_value }
+
+              it 'returns the set value' do
+                is_expected.to eq set_value
+              end
+            end
+          end
+        end
+
         it { is_expected.to respond_to :case_insensitive_keys }
         it { is_expected.to respond_to :case_insensitive_keys= }
       end
