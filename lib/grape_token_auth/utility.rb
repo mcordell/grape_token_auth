@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   class Utility
     def self.find_with_indifference(hash, key)

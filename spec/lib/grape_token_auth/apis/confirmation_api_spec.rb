@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   RSpec.describe ConfirmationAPI, confirmable: true do
     let(:mail) do

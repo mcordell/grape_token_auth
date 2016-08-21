@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   class AuthorizerData
     RACK_ENV_KEY = 'gta.auth_data'

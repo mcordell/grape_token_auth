@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   RSpec.describe OmniAuthHTMLBase do
     let(:invalid_error) { 'Invalid OmniAuthHTMLBase class' }

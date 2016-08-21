@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   describe OmniAuthFailureHTML do
     subject(:failure_html) { described_class.new(message) }

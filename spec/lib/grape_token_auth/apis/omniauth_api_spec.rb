@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   describe OmniAuthAPI do
     let(:redirect_url) { 'http://example.org/' }

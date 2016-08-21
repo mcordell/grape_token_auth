@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   class Configuration
     ACCESS_TOKEN_KEY = 'access-token'

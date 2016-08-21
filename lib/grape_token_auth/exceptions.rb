@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   # Error when an undefined scope was attempted to be used
   class ScopeUndefinedError < StandardError

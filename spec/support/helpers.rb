@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   # Spec Helpers for GrapeTokenAuth testing. Primarily does a little syntatic
   # sugary stuff aroung rack-test to be similar to airborne

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   class Token
     attr_reader :token, :client_id, :expiry

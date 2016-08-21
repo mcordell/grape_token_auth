@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   class Middleware
     def initialize(app, _options)

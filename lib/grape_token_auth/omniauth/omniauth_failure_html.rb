@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   class OmniAuthFailureHTML < OmniAuthHTMLBase
     FAILURE_MESSAGE = 'authFailure'

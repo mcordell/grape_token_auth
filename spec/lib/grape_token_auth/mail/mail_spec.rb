@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   RSpec.describe Mail do
     describe '.send' do

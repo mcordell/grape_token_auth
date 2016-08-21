@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   RSpec.describe OmniAuthResource do
     let(:resource) { instance_double('User') }

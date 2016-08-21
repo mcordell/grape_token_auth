@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   module RegistrationAPICore
     def self.included(base)

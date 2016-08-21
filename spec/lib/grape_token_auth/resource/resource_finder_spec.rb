@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth
   describe ResourceFinder do
     describe '.find' do

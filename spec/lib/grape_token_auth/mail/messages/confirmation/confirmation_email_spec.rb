@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GrapeTokenAuth::Mail
   RSpec.describe ConfirmationEmail do
     before do
