@@ -1,5 +1,5 @@
 # GrapeTokenAuth
-[![Code Climate GPA][11]][12] [![Test Coverage][13]][14] [![Circle CI][15]][16]
+[![Gem Version][17]][18] [![Code Climate GPA][11]][12] [![Test Coverage][13]][14] [![Circle CI][15]][16]
 
 GrapeTokenAuth is a token authentication solution for grape. It is compatible
 with [ng-token-auth][1] (for _angular_) and [j-toker][2] (for _jQuery_), and is
@@ -243,6 +243,8 @@ To run tests, you will need postgres to be setup and configured correctly.  Run
 [14]: https://codeclimate.com/github/mcordell/grape_token_auth/coverage
 [15]: https://circleci.com/gh/mcordell/grape_token_auth.svg?style=svg
 [16]: https://circleci.com/gh/mcordell/grape_token_auth
+[17]: https://badge.fury.io/rb/grape_token_auth.svg
+[18]: https://badge.fury.io/rb/grape_token_auth
 [contributing]: https://github.com/mcordell/grape_token_auth/blob/master/CONTRIBUTING.md
 [gta-wiki]: https://github.com/mcordell/grape_token_auth/wiki
 [demo-repo]: https://github.com/mcordell/grape_token_auth_demo
