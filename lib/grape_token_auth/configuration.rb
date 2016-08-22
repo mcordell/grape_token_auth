@@ -76,7 +76,8 @@ module GrapeTokenAuth
 
     def scope_to_class(scope = nil)
       fail MappingsUndefinedError if mappings.empty?
-      mappings[scope]
+
+      mappings[scope].is_a?(String) ? mappings[scope].constantize : mappings[scope]
     end
   end
 end
