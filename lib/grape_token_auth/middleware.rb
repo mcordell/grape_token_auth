@@ -19,10 +19,12 @@ module GrapeTokenAuth
     attr_reader :app, :request_start, :authorizer_data, :scope
 
     def unauthorized
-      [401,
-       { 'Content-Type' => 'application/json'
-       },
-       []
+      [
+        401,
+        {
+          'Content-Type' => 'application/json'
+        },
+        []
       ]
     end
 
