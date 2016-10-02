@@ -10,17 +10,16 @@ module GrapeTokenAuth
       end
 
       base.post '/sign_in' do
-        start_time = Time.now
         resource = ResourceFinder.find(base.resource_scope, params)
         unless resource && resource.valid_password?(params[:password])
           message = 'Invalid login credentials. Please try again.'
           throw(:warden, errors: { errors: [message], status: 'error' })
         end
         unless resource.confirmed?
-          error_message = 'A confirmation email was sent to your account at ' +
-                          "#{resource.email}. You must follow the " +
-                          'instructions in the email before your account can be ' +
-                          'activated'
+          error_message = 'A confirmation email was sent to your account at ' \
+                          "#{resource.email}. You must follow the " \
+                          'instructions in the email before your account can ' \
+                          'be activated'
           throw(:warden, errors: { errors: [error_message], status: 'error' })
         end
 
@@ -37,8 +36,9 @@ module GrapeTokenAuth
         resource = find_resource(data, base.resource_scope)
 
         if resource
-          # Rails prepends 'CLIENT' header with 'HTTP_' prefix, so to make sure we address to
-          # proper header, better use normalized version stored at <tt>data</tt>
+          # Rails prepends 'CLIENT' header with 'HTTP_' prefix, so to make sure
+          # we address to proper header, better use normalized version stored at
+          # <tt>data</tt>
           # See more: http://stackoverflow.com/a/26936364/1592582
           resource.tokens.delete(data.client_id)
           data.skip_auth_headers = true
