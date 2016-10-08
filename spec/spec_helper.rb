@@ -19,6 +19,7 @@ require 'omniauth'
 require 'omniauth-facebook'
 require 'rack/test'
 require 'mail'
+require 'active_model_serializers'
 
 Dir['./spec/support/**/*.rb'].sort.each { |f| require f }
 
