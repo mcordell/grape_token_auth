@@ -3,16 +3,16 @@ module GrapeTokenAuth
   module Registration
     module Helpers
       def bad_request(messages, code = 422)
-        status(code)
-        { 'status' => 'error', 'error' => messages.join(',') }
+        GrapeTokenAuth::Responses::BadRequest.new(messages, code).tap do |resp|
+          status(resp.status_code)
+        end
       end
 
       def invalid_redirect_error
         white_list = GrapeTokenAuth.configuration.redirect_whitelist
         return unless white_list
         url_valid = white_list.include?(params['confirm_success_url'])
-        errors = ['redirect url is not in whitelist']
-        bad_request(errors, 403) unless url_valid
+        bad_request(['redirect url is not in whitelist'], 403) unless url_valid
       end
 
       def present_update(params, resource, scope)
