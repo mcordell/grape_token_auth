@@ -186,5 +186,11 @@ module GrapeTokenAuth
         expect(subject.mailer).to eq(GrapeTokenAuth::Mail::SMTPMailer)
       end
     end
+
+    describe '#resource_preparer' do
+      it 'responds to the prepare command' do
+        expect(subject.resource_preparer).to respond_to(:prepare)
+      end
+    end
   end
 end
