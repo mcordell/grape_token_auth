@@ -86,6 +86,10 @@ module GrapeTokenAuth
       configuration.mailer.send!(message, opts)
     end
 
+    def prepare_resource(resource)
+      configuration.resource_preparer.prepare(resource)
+    end
+
     private
 
     def add_auth_strategy
