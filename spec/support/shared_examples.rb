@@ -15,3 +15,11 @@ RSpec.shared_examples 'a grape token auth mailer' do
   it { is_expected.to respond_to :send_mail }
   it { is_expected.to respond_to :valid_options? }
 end
+
+RSpec.shared_examples 'a resource preparer' do
+  describe '.prepare' do
+    it 'accepts a resource argumetn' do
+      expect { described_class.prepare(double('resource')) }.not_to raise_error
+    end
+  end
+end
