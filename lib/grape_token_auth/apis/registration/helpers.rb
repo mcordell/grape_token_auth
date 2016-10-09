@@ -54,7 +54,7 @@ module GrapeTokenAuth
 
       def present_success(resource)
         status 200
-        present(data: resource)
+        present(GrapeTokenAuth.prepare_resource(resource))
       end
     end
   end

@@ -28,7 +28,7 @@ module GrapeTokenAuth
         data.store_resource(resource, base.resource_scope)
         data.authed_with_token = false
         status 200
-        present data: resource
+        present GrapeTokenAuth.prepare_resource(resource)
       end
 
       base.delete '/sign_out' do
