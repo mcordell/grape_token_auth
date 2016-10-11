@@ -114,4 +114,32 @@ describe GrapeTokenAuth do
                                 env)
     end
   end
+
+  describe '.prepare_resource' do
+    context 'when passed a resource' do
+      let(:resource) { double('resource') }
+      let(:preparer) do
+        class_double('GrapeTokenAuth::Resource::DefaultPreparer')
+      end
+
+      before do
+        @b_prep = nil
+        GrapeTokenAuth.configure do |config|
+          @b_prep = config.resource_preparer
+          config.resource_preparer = preparer
+        end
+      end
+
+      after { GrapeTokenAuth.configure { |c| c.resource_preparer = @b_prep } }
+
+      subject { described_class.prepare_resource(resource) }
+
+      it 'returns the result of calling `prepare` on the configured preparer' do
+        result = { 'success' => true }
+        allow(preparer).to receive(:prepare).with(resource).
+          and_return(result)
+        is_expected.to eq result
+      end
+    end
+  end
 end

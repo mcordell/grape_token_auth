@@ -214,6 +214,37 @@ class TestApp < Grape::API
 end
 ```
 
+### Overriding resource presentation
+
+It is often desirable to use serialization libraries such as
+ActiveModelSerializers or Grape's entities. Previously, GTA would simply wrap
+the resource in a hash under the :data key. This did not integrate well with the
+above serialization solutions. This behavior can now be controlled and modified
+by using a different `ResourcePreparer`. A ResourcePreparer should implement a
+class method called `prepare` which accepts an instance of the resource and returns
+an object to be serialized/passed to grape's `present` method. An example, that
+retains the default behavior can be found in the
+[DefaultPreparer][default_preparer]. As an example,
+if you wanted to pass the resource directly through to the present command, this
+could be achieved with:
+
+```ruby
+class UntouchedPreparer
+  def self.prepare(resource)
+    resource
+  end
+end
+
+GrapeTokenAuth.configure do |config|
+  config.resource_preparer = UntouchedPreparer
+end
+```
+
+*Warning* : ng\_token\_auth expects the resource nested within the 'data' key of
+a JSON object (hence the default behavior). Breaking this convention may break
+compatibility with ng\_token\_auth.
+
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then,
@@ -253,3 +284,4 @@ To run tests, you will need postgres to be setup and configured correctly.  Run
 [dta-contributors]: https://github.com/lynndylanhurley/devise_token_auth#callouts
 [devise]: https://github.com/plataformatec/devise
 [mail]: https://github.com/mcordell/grape_token_auth/wiki/Email
+[default_preparer]: https://github.com/mcordell/grape_token_auth/blob/fa7268e91dfbecdee085cdef8a27a7bd49f0908b/lib/grape_token_auth/resource/default_preparer.rb

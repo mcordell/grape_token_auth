@@ -34,6 +34,9 @@ require 'grape_token_auth/omniauth/omniauth_failure_html'
 require 'grape_token_auth/omniauth/omniauth_resource'
 require 'grape_token_auth/omniauth/omniauth_success_html'
 require 'grape_token_auth/orm_integrations/active_record_token_auth'
+require 'grape_token_auth/responses/base'
+require 'grape_token_auth/responses/bad_request'
+require 'grape_token_auth/resource/default_preparer'
 require 'grape_token_auth/resource/resource_creator'
 require 'grape_token_auth/resource/resource_finder'
 require 'grape_token_auth/resource/resource_updater'
@@ -81,6 +84,10 @@ module GrapeTokenAuth
     def send_notification(notification_type, opts)
       message = GrapeTokenAuth::Mail.initialize_message(notification_type, opts)
       configuration.mailer.send!(message, opts)
+    end
+
+    def prepare_resource(resource)
+      configuration.resource_preparer.prepare(resource)
     end
 
     private
