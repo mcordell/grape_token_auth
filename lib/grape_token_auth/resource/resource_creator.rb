@@ -7,6 +7,7 @@ module GrapeTokenAuth
       return false unless errors.empty?
       create_resource!
       return false unless errors.empty?
+      send_registration_email!
       resource
     end
 
@@ -42,6 +43,14 @@ module GrapeTokenAuth
       return "#{label} is required" unless value
       return "#{label} must be a string" unless value.is_a? String
       nil
+    end
+
+    def send_registration_email!
+      resource.send_confirmation_instructions(
+        provider: 'email',
+        redirect_url: params[:redirect_url] || GrapeTokenAuth.configuration.default_password_reset_url,
+        client_config: params[:config_name]
+      )
     end
   end
 end

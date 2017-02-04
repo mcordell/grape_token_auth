@@ -1,3 +1,5 @@
+require 'mail'
+
 # frozen_string_literal: true
 module GrapeTokenAuth
   module Mail
@@ -43,6 +45,7 @@ module GrapeTokenAuth
       def prepare_html
         part = ::Mail::Part.new
         part.body = message.html_body
+        part.header['content-type'] = 'text/html; charset=UTF-8'
         part
       end
 

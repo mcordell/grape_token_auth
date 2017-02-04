@@ -24,7 +24,7 @@ module GrapeTokenAuth
         end
       end
 
-      base.post do
+      base.post '/password' do
         email = params[:email]
         throw_unauthorized('You must provide an email address.') unless email
 
@@ -58,7 +58,7 @@ module GrapeTokenAuth
         end
       end
 
-      base.get '/edit' do
+      base.get '/password/edit' do
         resource_class = GrapeTokenAuth.configuration.scope_to_class(base.resource_scope)
         resource = resource_class.find_with_reset_token(
           reset_password_token: params[:reset_password_token]
@@ -89,7 +89,7 @@ module GrapeTokenAuth
         end
       end
 
-      base.put do
+      base.put '/password' do
         token_authorizer = TokenAuthorizer.new(AuthorizerData.from_env(env))
         resource = token_authorizer.find_resource(base.resource_scope)
         throw(:warden) unless resource

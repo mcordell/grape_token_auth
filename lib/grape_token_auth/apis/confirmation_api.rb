@@ -6,7 +6,7 @@ module GrapeTokenAuth
   # resource (mapping).
   module ConfirmationAPICore
     def self.included(base)
-      base.get do
+      base.get 'confirmation' do
         resource_class = GrapeTokenAuth.configuration.scope_to_class(
           base.resource_scope)
         resource = resource_class.confirm_by_token(params[:confirmation_token])
