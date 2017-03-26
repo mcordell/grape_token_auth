@@ -7,7 +7,7 @@ module GrapeTokenAuth
       return false unless errors.empty?
       create_resource!
       return false unless errors.empty?
-      send_registration_email!
+      send_registration_email! if confirmation_enabled?
       resource
     end
 
@@ -48,9 +48,14 @@ module GrapeTokenAuth
     def send_registration_email!
       resource.send_confirmation_instructions(
         provider: 'email',
-        redirect_url: params[:redirect_url] || GrapeTokenAuth.configuration.default_password_reset_url,
+        redirect_url: params[:redirect_url] || params[:confirm_success_url],
         client_config: params[:config_name]
       )
+    end
+
+    def confirmation_enabled?
+      # TODO: Actually check whether we have enabled the mapping.
+      resouce.has_attribute?(:confirmed_at)
     end
   end
 end
