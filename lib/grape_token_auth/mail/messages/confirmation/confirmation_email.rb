@@ -12,7 +12,8 @@ module GrapeTokenAuth
 
       def confirmation_link
         protocol = url_options[:ssl] ? URI::HTTPS : URI::HTTP
-        options = url_options.merge(query: confirmation_params.to_query)
+        options = url_options.merge(query: confirmation_params.to_query,
+                                    path: url_options[:path] + 'confirmation')
         protocol.build(options).to_s
       end
 
