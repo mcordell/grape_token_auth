@@ -48,7 +48,7 @@ module GrapeTokenAuth
     def send_registration_email!
       resource.send_confirmation_instructions(
         provider: 'email',
-        redirect_url: params[:redirect_url] || params[:confirm_success_url],
+        redirect_url: params['confirm_success_url'],
         client_config: params[:config_name]
       )
     end
