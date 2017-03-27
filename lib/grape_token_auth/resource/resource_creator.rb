@@ -55,7 +55,7 @@ module GrapeTokenAuth
 
     def confirmation_enabled?
       # TODO: Actually check whether we have enabled the mapping.
-      resouce.has_attribute?(:confirmed_at)
+      resource.has_attribute?(:confirmed_at)
     end
   end
 end
