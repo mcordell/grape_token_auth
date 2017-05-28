@@ -15,7 +15,7 @@ module GrapeTokenAuth
       end
 
       def mount_confirmation(opts = {})
-        mount_api('ConfirmationAPI', set_mount_point(opts, '/confirmation'))
+        mount_api('ConfirmationAPI', opts)
       end
 
       def mount_token_validation(opts = {})
@@ -23,7 +23,7 @@ module GrapeTokenAuth
       end
 
       def mount_password_reset(opts = {})
-        mount_api('PasswordAPI', set_mount_point(opts, '/password'))
+        mount_api('PasswordAPI', opts)
       end
 
       def mount_omniauth(opts = {})
