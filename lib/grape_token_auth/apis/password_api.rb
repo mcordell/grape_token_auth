@@ -13,7 +13,7 @@ module GrapeTokenAuth
 
         def bad_request(messages, code = 422)
           status(code)
-          { 'status' => 'error', 'error' => messages.join(',') }
+          { 'status' => 'error', 'errors' => messages }
         end
 
         def validate_redirect_url!(url)
